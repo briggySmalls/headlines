@@ -3,6 +3,7 @@ import { Ring } from './Ring';
 import { AnswerMarker } from './AnswerMarker';
 import { LongPressTarget } from './LongPressTarget';
 import { PlayButton } from './PlayButton';
+import { AnswerDisplay } from './AnswerDisplay';
 import { HeadlineCounter } from './HeadlineCounter';
 import { useGame } from '../hooks/useGame';
 import { ringConfig } from '../data/ringConfig';
@@ -275,12 +276,20 @@ export function DialInterface() {
           }
         />
 
-        {/* Center Play Button */}
-        <PlayButton
-          isPlaying={isPlaying}
-          onClick={handlePlayClick}
-          disabled={state.gameStatus === 'won' || state.gameStatus === 'lost'}
-        />
+        {/* Center Play Button or Answer Display */}
+        {state.gameStatus === 'won' || state.gameStatus === 'lost' ? (
+          <AnswerDisplay
+            decade={state.correctAnswer.decade}
+            year={state.correctAnswer.year}
+            month={state.correctAnswer.month}
+          />
+        ) : (
+          <PlayButton
+            isPlaying={isPlaying}
+            onClick={handlePlayClick}
+            disabled={false}
+          />
+        )}
       </svg>
     </div>
   );
