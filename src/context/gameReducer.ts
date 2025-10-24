@@ -73,12 +73,12 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
           gameStatus: nextRing ? state.gameStatus : 'won',
         };
       } else {
-        // Incorrect guess - show red flash and burn the headline
-        const newHeadlinesHeard = state.headlinesHeard;
+        // Incorrect guess - show red flash and progress to next headline
         const newHeadlineIndex = state.currentHeadlineIndex + 1;
+        const newHeadlinesHeard = Math.min(state.headlinesHeard + 1, 3);
 
         // Check if game is lost (3 headlines heard and incorrect guess)
-        if (newHeadlinesHeard >= 3) {
+        if (state.headlinesHeard >= 3) {
           return {
             ...state,
             ringStates: {
@@ -102,6 +102,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
             },
           },
           currentHeadlineIndex: newHeadlineIndex,
+          headlinesHeard: newHeadlinesHeard,
         };
       }
     }
