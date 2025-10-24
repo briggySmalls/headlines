@@ -9,6 +9,7 @@ export interface RingState {
   isLocked: boolean;
   color: RingColor;
   selectedValue: string; // current value at 12 o'clock
+  showIncorrectFlash: boolean; // triggers red flash animation on incorrect guess
 }
 
 export interface GameState {

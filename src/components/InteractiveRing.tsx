@@ -143,6 +143,7 @@ export function InteractiveRing({
         isLocked={isLocked}
         color={color}
         isBlurred={isBlurred}
+        showIncorrectFlash={false}
       />
 
       {/* Annular hit area for pointer events - MUST be rendered AFTER Ring so it's on top */}

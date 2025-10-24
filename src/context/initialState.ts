@@ -17,18 +17,21 @@ export function createInitialState(dailyGame: DailyGame): GameState {
         isLocked: false,
         color: 'none',
         selectedValue: '1940s', // segment 0 at 12 o'clock
+        showIncorrectFlash: false,
       },
       year: {
         rotationAngle: 0,
         isLocked: false,
         color: 'none',
         selectedValue: '1940', // segment 0 at 12 o'clock
+        showIncorrectFlash: false,
       },
       month: {
         rotationAngle: 0,
         isLocked: false,
         color: 'none',
         selectedValue: 'Jan', // segment 0 at 12 o'clock
+        showIncorrectFlash: false,
       },
     },
 
