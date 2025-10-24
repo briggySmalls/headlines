@@ -10,6 +10,7 @@ export type GameAction =
       isCorrect: boolean;
     }
   | { type: 'LOCK_RING'; ringType: RingType; color: RingColor }
+  | { type: 'CLEAR_INCORRECT_FLASH'; ringType: RingType }
   | { type: 'PLAY_HEADLINE' }
   | { type: 'NEXT_HEADLINE' }
   | { type: 'WIN_GAME' }
@@ -72,7 +73,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
           gameStatus: nextRing ? state.gameStatus : 'won',
         };
       } else {
-        // Incorrect guess - burn the headline
+        // Incorrect guess - show red flash and burn the headline
         const newHeadlinesHeard = state.headlinesHeard;
         const newHeadlineIndex = state.currentHeadlineIndex + 1;
 
@@ -80,12 +81,26 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         if (newHeadlinesHeard >= 3) {
           return {
             ...state,
+            ringStates: {
+              ...state.ringStates,
+              [ringType]: {
+                ...state.ringStates[ringType],
+                showIncorrectFlash: true,
+              },
+            },
             gameStatus: 'lost',
           };
         }
 
         return {
           ...state,
+          ringStates: {
+            ...state.ringStates,
+            [ringType]: {
+              ...state.ringStates[ringType],
+              showIncorrectFlash: true,
+            },
+          },
           currentHeadlineIndex: newHeadlineIndex,
         };
       }
@@ -100,6 +115,19 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
             ...state.ringStates[action.ringType],
             isLocked: true,
             color: action.color,
+          },
+        },
+      };
+    }
+
+    case 'CLEAR_INCORRECT_FLASH': {
+      return {
+        ...state,
+        ringStates: {
+          ...state.ringStates,
+          [action.ringType]: {
+            ...state.ringStates[action.ringType],
+            showIncorrectFlash: false,
           },
         },
       };

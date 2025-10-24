@@ -1,5 +1,6 @@
 import { RingType, RingColor } from '../types/game';
 import { clsx } from 'clsx';
+import { motion } from 'framer-motion';
 
 interface RingProps {
   ringType: RingType;
@@ -10,6 +11,8 @@ interface RingProps {
   isLocked: boolean;
   color: RingColor;
   isBlurred: boolean;
+  showIncorrectFlash: boolean;
+  onFlashComplete?: () => void;
 }
 
 export function Ring({
@@ -20,6 +23,8 @@ export function Ring({
   isLocked,
   color,
   isBlurred,
+  showIncorrectFlash,
+  onFlashComplete,
 }: RingProps) {
   const centerX = 200;
   const centerY = 200;
@@ -30,7 +35,8 @@ export function Ring({
   const textRadius = radius;
 
   // Get ring color
-  const ringColor = getRingColor(color, isLocked);
+  const baseRingColor = getRingColor(color, isLocked);
+  const flashColor = '#ef4444'; // red-500
 
   return (
     <g transform={`rotate(${rotation} ${centerX} ${centerY})`}>
@@ -42,8 +48,8 @@ export function Ring({
 
         return (
           <g key={`${segment}-${index}`}>
-            {/* Segment arc path */}
-            <path
+            {/* Segment arc path with flash animation */}
+            <motion.path
               d={describeArc(
                 centerX,
                 centerY,
@@ -52,9 +58,24 @@ export function Ring({
                 endAngle,
                 strokeWidth
               )}
-              fill={ringColor}
+              fill={baseRingColor}
               stroke="#1e293b"
               strokeWidth="1"
+              animate={{
+                fill: showIncorrectFlash
+                  ? [baseRingColor, flashColor, baseRingColor]
+                  : baseRingColor,
+              }}
+              transition={{
+                duration: 0.4,
+                times: [0, 0.5, 1],
+                ease: 'easeInOut',
+              }}
+              onAnimationComplete={() => {
+                if (showIncorrectFlash && onFlashComplete) {
+                  onFlashComplete();
+                }
+              }}
             />
 
             {/* Segment text */}

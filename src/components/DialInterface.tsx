@@ -5,6 +5,7 @@ import { LongPressTarget } from './LongPressTarget';
 import { useGame } from '../hooks/useGame';
 import { ringConfig } from '../data/ringConfig';
 import { motion } from 'framer-motion';
+import { RingType } from '../types/game';
 
 export function DialInterface() {
   const { state, dispatch } = useGame();
@@ -143,6 +144,16 @@ export function DialInterface() {
     });
   };
 
+  const handleFlashComplete = useCallback(
+    (ringType: RingType) => {
+      dispatch({
+        type: 'CLEAR_INCORRECT_FLASH',
+        ringType,
+      });
+    },
+    [dispatch]
+  );
+
   return (
     <div className="relative w-full max-w-md aspect-square touch-none">
       <svg
@@ -170,6 +181,8 @@ export function DialInterface() {
             isLocked={state.ringStates.decade.isLocked}
             color={state.ringStates.decade.color}
             isBlurred={false}
+            showIncorrectFlash={state.ringStates.decade.showIncorrectFlash}
+            onFlashComplete={() => handleFlashComplete('decade')}
           />
         </motion.g>
 
@@ -187,6 +200,8 @@ export function DialInterface() {
             isLocked={state.ringStates.year.isLocked}
             color={state.ringStates.year.color}
             isBlurred={!state.ringStates.decade.isLocked}
+            showIncorrectFlash={state.ringStates.year.showIncorrectFlash}
+            onFlashComplete={() => handleFlashComplete('year')}
           />
         </motion.g>
 
@@ -204,6 +219,8 @@ export function DialInterface() {
             isLocked={state.ringStates.month.isLocked}
             color={state.ringStates.month.color}
             isBlurred={!state.ringStates.year.isLocked}
+            showIncorrectFlash={state.ringStates.month.showIncorrectFlash}
+            onFlashComplete={() => handleFlashComplete('month')}
           />
         </motion.g>
 
