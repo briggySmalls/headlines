@@ -28,9 +28,12 @@ export function DialInterface() {
 
   const getSegmentAtTop = useCallback(
     (rotation: number, segmentCount: number) => {
-      const normalizedRotation = ((rotation % 360) + 360) % 360;
       const anglePerSegment = 360 / segmentCount;
-      const segmentIndex = Math.round(normalizedRotation / anglePerSegment);
+      // Invert rotation because clockwise rotation (positive) moves higher-indexed segments to the top
+      // Also account for the half-segment offset we use to center segments at 12 o'clock
+      const adjustedRotation = -rotation + anglePerSegment / 2;
+      const normalizedRotation = ((adjustedRotation % 360) + 360) % 360;
+      const segmentIndex = Math.floor(normalizedRotation / anglePerSegment);
       return segmentIndex % segmentCount;
     },
     []
@@ -58,10 +61,6 @@ export function DialInterface() {
       startAngleRef.current = (angle * 180) / Math.PI - currentRotation;
       currentRotationRef.current = currentRotation;
       setIsDragging(true);
-
-      console.log(
-        `[${currentRing}] Drag start - rotation: ${currentRotation}°`
-      );
     },
     [state, getCenterPoint]
   );
@@ -111,10 +110,6 @@ export function DialInterface() {
     // Update selected value
     const segmentIndex = getSegmentAtTop(snappedRotation, segmentCount);
     const selectedValue = segments[segmentIndex];
-
-    console.log(
-      `[${currentRing}] Drag end - selected: ${selectedValue} (segment ${segmentIndex})`
-    );
 
     if (selectedValue) {
       dispatch({

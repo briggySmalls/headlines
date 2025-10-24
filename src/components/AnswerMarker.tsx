@@ -8,17 +8,6 @@ export function AnswerMarker() {
         stroke="#059669"
         strokeWidth="1"
       />
-      {/* Label text */}
-      <text
-        x="200"
-        y="15"
-        textAnchor="middle"
-        dominantBaseline="middle"
-        className="text-xs font-bold fill-slate-700"
-        style={{ fontSize: '12px' }}
-      >
-        ANSWER
-      </text>
     </g>
   );
 }
