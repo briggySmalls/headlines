@@ -90,11 +90,13 @@ export function Ring({
                 textAnchor="middle"
                 dominantBaseline="middle"
                 className={clsx(
-                  'text-xs font-semibold fill-slate-800',
+                  'text-xs font-semibold fill-slate-800 select-none',
                   isBlurred && 'blur-[8px]'
                 )}
                 style={{
                   fontSize: '14px',
+                  userSelect: 'none',
+                  WebkitUserSelect: 'none',
                 }}
               >
                 {segment}
