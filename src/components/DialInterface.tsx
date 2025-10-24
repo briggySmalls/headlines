@@ -2,10 +2,13 @@ import { useState, useRef, useCallback } from 'react';
 import { Ring } from './Ring';
 import { AnswerMarker } from './AnswerMarker';
 import { LongPressTarget } from './LongPressTarget';
+import { PlayButton } from './PlayButton';
+import { HeadlineCounter } from './HeadlineCounter';
 import { useGame } from '../hooks/useGame';
 import { ringConfig } from '../data/ringConfig';
 import { motion } from 'framer-motion';
 import { RingType } from '../types/game';
+import { useAudioPlayer } from './AudioPlayer';
 
 export function DialInterface() {
   const { state, dispatch } = useGame();
@@ -17,6 +20,11 @@ export function DialInterface() {
   // Get current values for each ring
   const decadeValue = state.ringStates.decade.selectedValue;
   const yearsForDecade = ringConfig.getYearsForDecade(decadeValue);
+
+  // Audio player for current headline
+  const currentAudioSrc =
+    state.audioFiles[state.currentHeadlineIndex] || state.audioFiles[0];
+  const { play, replay, isPlaying } = useAudioPlayer(currentAudioSrc);
 
   const getCenterPoint = useCallback(() => {
     if (!svgRef.current) return { x: 0, y: 0 };
@@ -154,8 +162,33 @@ export function DialInterface() {
     [dispatch]
   );
 
+  const handlePlayClick = useCallback(() => {
+    // If already playing, replay from start
+    if (isPlaying) {
+      replay();
+      return;
+    }
+
+    // First time playing this headline - increment headlinesHeard
+    if (state.headlinesHeard === state.currentHeadlineIndex) {
+      dispatch({ type: 'PLAY_HEADLINE' });
+    }
+
+    play();
+  }, [
+    isPlaying,
+    replay,
+    play,
+    state.headlinesHeard,
+    state.currentHeadlineIndex,
+    dispatch,
+  ]);
+
   return (
     <div className="relative w-full max-w-md aspect-square touch-none select-none">
+      {/* Headline Counter */}
+      <HeadlineCounter headlinesHeard={state.headlinesHeard} total={3} />
+
       <svg
         ref={svgRef}
         viewBox="0 0 400 400"
@@ -235,17 +268,18 @@ export function DialInterface() {
         {/* Long Press Target at 12 o'clock */}
         <LongPressTarget
           onLongPress={handleSubmitGuess}
-          disabled={state.gameStatus === 'won' || state.gameStatus === 'lost'}
+          disabled={
+            state.gameStatus === 'won' ||
+            state.gameStatus === 'lost' ||
+            state.headlinesHeard === state.currentHeadlineIndex
+          }
         />
 
-        {/* Center Play Button Circle */}
-        <circle
-          cx="200"
-          cy="200"
-          r="30"
-          fill="white"
-          stroke="#334155"
-          strokeWidth="2"
+        {/* Center Play Button */}
+        <PlayButton
+          isPlaying={isPlaying}
+          onClick={handlePlayClick}
+          disabled={state.gameStatus === 'won' || state.gameStatus === 'lost'}
         />
       </svg>
     </div>
