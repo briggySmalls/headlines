@@ -1,60 +1,225 @@
+import { useState, useRef, useCallback } from 'react';
 import { Ring } from './Ring';
 import { AnswerMarker } from './AnswerMarker';
+import { LongPressTarget } from './LongPressTarget';
 import { useGame } from '../hooks/useGame';
 import { ringConfig } from '../data/ringConfig';
+import { motion } from 'framer-motion';
 
 export function DialInterface() {
-  const { state } = useGame();
+  const { state, dispatch } = useGame();
+  const svgRef = useRef<SVGSVGElement>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const startAngleRef = useRef<number>(0);
+  const currentRotationRef = useRef<number>(0);
 
   // Get current values for each ring
   const decadeValue = state.ringStates.decade.selectedValue;
   const yearsForDecade = ringConfig.getYearsForDecade(decadeValue);
 
+  const getCenterPoint = useCallback(() => {
+    if (!svgRef.current) return { x: 0, y: 0 };
+    const rect = svgRef.current.getBoundingClientRect();
+    return {
+      x: rect.left + rect.width / 2,
+      y: rect.top + rect.height / 2,
+    };
+  }, []);
+
+  const getSegmentAtTop = useCallback(
+    (rotation: number, segmentCount: number) => {
+      const normalizedRotation = ((rotation % 360) + 360) % 360;
+      const anglePerSegment = 360 / segmentCount;
+      const segmentIndex = Math.round(normalizedRotation / anglePerSegment);
+      return segmentIndex % segmentCount;
+    },
+    []
+  );
+
+  const snapToSegment = useCallback(
+    (rotation: number, segmentCount: number) => {
+      const normalizedRotation = ((rotation % 360) + 360) % 360;
+      const anglePerSegment = 360 / segmentCount;
+      const nearestSegment = Math.round(normalizedRotation / anglePerSegment);
+      return (nearestSegment * anglePerSegment) % 360;
+    },
+    []
+  );
+
+  const handlePointerDown = useCallback(
+    (e: React.PointerEvent<SVGSVGElement>) => {
+      const currentRing = state.currentRing;
+      if (state.ringStates[currentRing].isLocked) return;
+
+      const center = getCenterPoint();
+      const angle = Math.atan2(e.clientY - center.y, e.clientX - center.x);
+      const currentRotation = state.ringStates[currentRing].rotationAngle;
+
+      startAngleRef.current = (angle * 180) / Math.PI - currentRotation;
+      currentRotationRef.current = currentRotation;
+      setIsDragging(true);
+
+      console.log(
+        `[${currentRing}] Drag start - rotation: ${currentRotation}°`
+      );
+    },
+    [state, getCenterPoint]
+  );
+
+  const handlePointerMove = useCallback(
+    (e: React.PointerEvent<SVGSVGElement>) => {
+      if (!isDragging) return;
+
+      const currentRing = state.currentRing;
+      if (state.ringStates[currentRing].isLocked) return;
+
+      const center = getCenterPoint();
+      const angle = Math.atan2(e.clientY - center.y, e.clientX - center.x);
+      const angleDegrees = (angle * 180) / Math.PI;
+      const newRotation = angleDegrees - startAngleRef.current;
+
+      dispatch({
+        type: 'ROTATE_RING',
+        ringType: currentRing,
+        angle: newRotation,
+      });
+    },
+    [isDragging, state, getCenterPoint, dispatch]
+  );
+
+  const handlePointerUp = useCallback(() => {
+    if (!isDragging) return;
+
+    const currentRing = state.currentRing;
+    const currentRotation = state.ringStates[currentRing].rotationAngle;
+    const segments =
+      currentRing === 'decade'
+        ? ringConfig.decades
+        : currentRing === 'year'
+          ? yearsForDecade
+          : ringConfig.months;
+    const segmentCount = segments.length;
+
+    // Snap to nearest segment
+    const snappedRotation = snapToSegment(currentRotation, segmentCount);
+    dispatch({
+      type: 'ROTATE_RING',
+      ringType: currentRing,
+      angle: snappedRotation,
+    });
+
+    // Update selected value
+    const segmentIndex = getSegmentAtTop(snappedRotation, segmentCount);
+    const selectedValue = segments[segmentIndex];
+
+    console.log(
+      `[${currentRing}] Drag end - selected: ${selectedValue} (segment ${segmentIndex})`
+    );
+
+    if (selectedValue) {
+      dispatch({
+        type: 'SET_RING_VALUE',
+        ringType: currentRing,
+        value: selectedValue,
+      });
+    }
+
+    setIsDragging(false);
+  }, [
+    isDragging,
+    state,
+    yearsForDecade,
+    snapToSegment,
+    getSegmentAtTop,
+    dispatch,
+  ]);
+
+  const handleSubmitGuess = () => {
+    const currentRing = state.currentRing;
+    const guessedValue = state.ringStates[currentRing].selectedValue;
+    const correctValue = state.correctAnswer[currentRing];
+    const isCorrect = guessedValue === correctValue;
+
+    dispatch({
+      type: 'SUBMIT_GUESS',
+      ringType: currentRing,
+      guessedValue,
+      isCorrect,
+    });
+  };
+
   return (
-    <div className="relative w-full max-w-md aspect-square">
+    <div className="relative w-full max-w-md aspect-square touch-none">
       <svg
+        ref={svgRef}
         viewBox="0 0 400 400"
         className="w-full h-full"
         xmlns="http://www.w3.org/2000/svg"
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+        onPointerCancel={handlePointerUp}
+        style={{ touchAction: 'none' }}
       >
         {/* Outer Ring - Decade */}
-        <Ring
-          ringType="decade"
-          segments={ringConfig.decades}
-          radius={180}
-          strokeWidth={40}
-          rotation={state.ringStates.decade.rotationAngle}
-          isLocked={state.ringStates.decade.isLocked}
-          color={state.ringStates.decade.color}
-          isBlurred={false}
-        />
+        <motion.g
+          animate={{ rotate: state.ringStates.decade.rotationAngle }}
+          transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+        >
+          <Ring
+            ringType="decade"
+            segments={ringConfig.decades}
+            radius={180}
+            strokeWidth={40}
+            rotation={0}
+            isLocked={state.ringStates.decade.isLocked}
+            color={state.ringStates.decade.color}
+            isBlurred={false}
+          />
+        </motion.g>
 
         {/* Middle Ring - Year */}
-        <Ring
-          ringType="year"
-          segments={yearsForDecade}
-          radius={130}
-          strokeWidth={40}
-          rotation={state.ringStates.year.rotationAngle}
-          isLocked={state.ringStates.year.isLocked}
-          color={state.ringStates.year.color}
-          isBlurred={!state.ringStates.decade.isLocked}
-        />
+        <motion.g
+          animate={{ rotate: state.ringStates.year.rotationAngle }}
+          transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+        >
+          <Ring
+            ringType="year"
+            segments={yearsForDecade}
+            radius={130}
+            strokeWidth={40}
+            rotation={0}
+            isLocked={state.ringStates.year.isLocked}
+            color={state.ringStates.year.color}
+            isBlurred={!state.ringStates.decade.isLocked}
+          />
+        </motion.g>
 
         {/* Inner Ring - Month */}
-        <Ring
-          ringType="month"
-          segments={ringConfig.months}
-          radius={80}
-          strokeWidth={40}
-          rotation={state.ringStates.month.rotationAngle}
-          isLocked={state.ringStates.month.isLocked}
-          color={state.ringStates.month.color}
-          isBlurred={!state.ringStates.year.isLocked}
-        />
+        <motion.g
+          animate={{ rotate: state.ringStates.month.rotationAngle }}
+          transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+        >
+          <Ring
+            ringType="month"
+            segments={ringConfig.months}
+            radius={80}
+            strokeWidth={40}
+            rotation={0}
+            isLocked={state.ringStates.month.isLocked}
+            color={state.ringStates.month.color}
+            isBlurred={!state.ringStates.year.isLocked}
+          />
+        </motion.g>
 
         {/* Answer Marker at 12 o'clock */}
         <AnswerMarker />
+
+        {/* Long Press Target at 12 o'clock */}
+        <LongPressTarget
+          onLongPress={handleSubmitGuess}
+          disabled={state.gameStatus === 'won' || state.gameStatus === 'lost'}
+        />
 
         {/* Center Play Button Circle */}
         <circle

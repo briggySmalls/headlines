@@ -36,7 +36,8 @@ export function Ring({
     <g transform={`rotate(${rotation} ${centerX} ${centerY})`}>
       {/* Ring segments */}
       {segments.map((segment, index) => {
-        const startAngle = index * anglePerSegment - 90; // -90 to start at top
+        // Offset by half a segment so the center of segment 0 is at 12 o'clock
+        const startAngle = index * anglePerSegment - 90 - anglePerSegment / 2;
         const endAngle = startAngle + anglePerSegment;
 
         return (
