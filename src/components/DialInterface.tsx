@@ -155,17 +155,22 @@ export function DialInterface() {
   );
 
   return (
-    <div className="relative w-full max-w-md aspect-square touch-none">
+    <div className="relative w-full max-w-md aspect-square touch-none select-none">
       <svg
         ref={svgRef}
         viewBox="0 0 400 400"
-        className="w-full h-full"
+        className="w-full h-full select-none"
         xmlns="http://www.w3.org/2000/svg"
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
         onPointerCancel={handlePointerUp}
-        style={{ touchAction: 'none' }}
+        style={{
+          touchAction: 'none',
+          userSelect: 'none',
+          WebkitUserSelect: 'none',
+          WebkitTapHighlightColor: 'transparent',
+        }}
       >
         {/* Outer Ring - Decade */}
         <motion.g
