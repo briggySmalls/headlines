@@ -1,6 +1,5 @@
 import { useState, useRef, useCallback } from 'react';
 import { Ring } from './Ring';
-import { LongPressTarget } from './LongPressTarget';
 import { PlayButton } from './PlayButton';
 import { AnswerDisplay } from './AnswerDisplay';
 import { HeadlineCounter } from './HeadlineCounter';
@@ -205,25 +204,26 @@ export function DialInterface() {
   }, [isPlaying, play, state.headlinesHeard, state.currentHeadlineIndex, dispatch]);
 
   return (
-    <div className="relative w-full max-w-md aspect-square touch-none select-none">
+    <div className="relative w-full max-w-md touch-none select-none flex flex-col items-center" style={{ gap: '2rem' }}>
       {/* Headline Counter */}
       <HeadlineCounter headlinesHeard={state.headlinesHeard} total={3} />
 
-      <svg
-        ref={svgRef}
-        viewBox={`0 0 ${DIAL_DIMENSIONS.viewBox.width} ${DIAL_DIMENSIONS.viewBox.height}`}
-        className="w-full h-full select-none"
-        xmlns="http://www.w3.org/2000/svg"
-        onPointerMove={handlePointerMove}
-        onPointerUp={handlePointerUp}
-        onPointerCancel={handlePointerUp}
-        style={{
-          touchAction: 'none',
-          userSelect: 'none',
-          WebkitUserSelect: 'none',
-          WebkitTapHighlightColor: 'transparent',
-        }}
-      >
+      <div className="w-full aspect-square">
+        <svg
+          ref={svgRef}
+          viewBox={`0 0 ${DIAL_DIMENSIONS.viewBox.width} ${DIAL_DIMENSIONS.viewBox.height}`}
+          className="w-full h-full select-none"
+          xmlns="http://www.w3.org/2000/svg"
+          onPointerMove={handlePointerMove}
+          onPointerUp={handlePointerUp}
+          onPointerCancel={handlePointerUp}
+          style={{
+            touchAction: 'none',
+            userSelect: 'none',
+            WebkitUserSelect: 'none',
+            WebkitTapHighlightColor: 'transparent',
+          }}
+        >
         {/* Outer Ring - Decade */}
         <motion.g
           animate={{ rotate: state.ringStates.decade.rotationAngle }}
@@ -311,17 +311,6 @@ export function DialInterface() {
           );
         })()}
 
-        {/* Long Press Target at 12 o'clock */}
-        <LongPressTarget
-          onLongPress={handleSubmitGuess}
-          disabled={
-            state.gameStatus === 'won' ||
-            state.gameStatus === 'lost' ||
-            state.headlinesHeard === state.currentHeadlineIndex
-          }
-          currentRing={state.currentRing}
-        />
-
         {/* Center Play Button or Answer Display */}
         {state.gameStatus === 'won' || state.gameStatus === 'lost' ? (
           <AnswerDisplay
@@ -337,7 +326,35 @@ export function DialInterface() {
             duration={duration}
           />
         )}
+
       </svg>
+      </div>
+
+      {/* Submit Button - outside SVG, below the dial */}
+      {state.gameStatus !== 'won' && state.gameStatus !== 'lost' && (
+        <button
+          onClick={handleSubmitGuess}
+          disabled={state.headlinesHeard === state.currentHeadlineIndex}
+          className="rounded-full font-bold text-white transition-all select-none uppercase font-sans"
+          style={{
+            backgroundColor:
+              state.headlinesHeard === state.currentHeadlineIndex
+                ? '#94a3b8'
+                : state.currentRing === 'decade'
+                  ? '#3b82f6'
+                  : state.currentRing === 'year'
+                    ? '#10b981'
+                    : '#f59e0b',
+            opacity: state.headlinesHeard === state.currentHeadlineIndex ? 0.5 : 1,
+            cursor:
+              state.headlinesHeard === state.currentHeadlineIndex ? 'default' : 'pointer',
+            fontSize: '2rem',
+            padding: '1rem 4rem',
+          }}
+        >
+          Submit
+        </button>
+      )}
     </div>
   );
 }
