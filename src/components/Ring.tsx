@@ -1,5 +1,4 @@
 import { RingType, RingColor } from '../types/game';
-import { clsx } from 'clsx';
 import { motion } from 'framer-motion';
 
 interface RingProps {
@@ -66,11 +65,18 @@ export function Ring({
                   ? [baseRingColor, flashColor, baseRingColor]
                   : baseRingColor,
               }}
-              transition={{
-                duration: 0.4,
-                times: [0, 0.5, 1],
-                ease: 'easeInOut',
-              }}
+              transition={
+                showIncorrectFlash
+                  ? {
+                      duration: 0.4,
+                      times: [0, 0.5, 1],
+                      ease: 'easeInOut',
+                    }
+                  : {
+                      duration: 0.3,
+                      ease: 'easeInOut',
+                    }
+              }
               onAnimationComplete={() => {
                 if (showIncorrectFlash && onFlashComplete) {
                   onFlashComplete();
@@ -84,23 +90,30 @@ export function Ring({
                 startAngle + anglePerSegment / 2 + 90
               } ${centerX} ${centerY})`}
             >
-              <text
+              <motion.text
                 x={centerX}
                 y={centerY - textRadius}
                 textAnchor="middle"
                 dominantBaseline="middle"
-                className={clsx(
-                  'text-xs font-semibold fill-slate-800 select-none',
-                  isBlurred && 'blur-[8px]'
-                )}
+                className="text-xs font-semibold fill-slate-800 select-none"
                 style={{
                   fontSize: '14px',
                   userSelect: 'none',
                   WebkitUserSelect: 'none',
                 }}
+                initial={{
+                  filter: isBlurred ? 'blur(8px)' : 'blur(0px)',
+                }}
+                animate={{
+                  filter: isBlurred ? 'blur(8px)' : 'blur(0px)',
+                }}
+                transition={{
+                  duration: 0.3,
+                  ease: 'easeInOut',
+                }}
               >
                 {segment}
-              </text>
+              </motion.text>
             </g>
           </g>
         );

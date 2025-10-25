@@ -6,10 +6,10 @@ import { PlayButton } from './PlayButton';
 import { AnswerDisplay } from './AnswerDisplay';
 import { HeadlineCounter } from './HeadlineCounter';
 import { useGame } from '../hooks/useGame';
+import { useAudioPlayer } from '../hooks/useAudioPlayer';
 import { ringConfig } from '../data/ringConfig';
 import { motion } from 'framer-motion';
 import { RingType } from '../types/game';
-import { useAudioPlayer } from './AudioPlayer';
 
 export function DialInterface() {
   const { state, dispatch } = useGame();
