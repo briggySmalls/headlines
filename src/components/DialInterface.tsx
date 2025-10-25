@@ -160,6 +160,12 @@ export function DialInterface() {
     const currentRing = state.currentRing;
     const guessedValue = state.ringStates[currentRing].selectedValue;
     const correctValue = state.correctAnswer[currentRing];
+
+    // Don't allow submitting if this value was already guessed incorrectly
+    if (state.ringStates[currentRing].incorrectGuesses.includes(guessedValue)) {
+      return;
+    }
+
     const isCorrect = guessedValue === correctValue;
 
     dispatch({
@@ -235,6 +241,7 @@ export function DialInterface() {
             color={state.ringStates.decade.color}
             isBlurred={false}
             showIncorrectFlash={state.ringStates.decade.showIncorrectFlash}
+            incorrectGuesses={state.ringStates.decade.incorrectGuesses}
             onFlashComplete={() => handleFlashComplete('decade')}
           />
         </motion.g>
@@ -254,6 +261,7 @@ export function DialInterface() {
             color={state.ringStates.year.color}
             isBlurred={!state.ringStates.decade.isLocked}
             showIncorrectFlash={state.ringStates.year.showIncorrectFlash}
+            incorrectGuesses={state.ringStates.year.incorrectGuesses}
             onFlashComplete={() => handleFlashComplete('year')}
           />
         </motion.g>
@@ -273,6 +281,7 @@ export function DialInterface() {
             color={state.ringStates.month.color}
             isBlurred={!state.ringStates.year.isLocked}
             showIncorrectFlash={state.ringStates.month.showIncorrectFlash}
+            incorrectGuesses={state.ringStates.month.incorrectGuesses}
             onFlashComplete={() => handleFlashComplete('month')}
           />
         </motion.g>

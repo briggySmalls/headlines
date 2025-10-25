@@ -73,7 +73,8 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
           gameStatus: nextRing ? state.gameStatus : 'won',
         };
       } else {
-        // Incorrect guess - show red flash and progress to next headline
+        // Incorrect guess - show red flash, add to incorrect guesses, and progress to next headline
+        const guessedValue = action.guessedValue;
         const newHeadlineIndex = state.currentHeadlineIndex + 1;
         const newHeadlinesHeard = Math.min(state.headlinesHeard + 1, 3);
 
@@ -86,6 +87,10 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
               [ringType]: {
                 ...state.ringStates[ringType],
                 showIncorrectFlash: true,
+                incorrectGuesses: [
+                  ...state.ringStates[ringType].incorrectGuesses,
+                  guessedValue,
+                ],
               },
             },
             gameStatus: 'lost',
@@ -99,6 +104,10 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
             [ringType]: {
               ...state.ringStates[ringType],
               showIncorrectFlash: true,
+              incorrectGuesses: [
+                ...state.ringStates[ringType].incorrectGuesses,
+                guessedValue,
+              ],
             },
           },
           currentHeadlineIndex: newHeadlineIndex,
