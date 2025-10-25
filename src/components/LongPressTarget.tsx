@@ -1,16 +1,19 @@
 import { useState, useRef, useCallback } from 'react';
 import { motion } from 'framer-motion';
+import { RingType } from '../types/game';
 
 interface LongPressTargetProps {
   onLongPress: () => void;
   duration?: number; // milliseconds
   disabled?: boolean;
+  currentRing: RingType;
 }
 
 export function LongPressTarget({
   onLongPress,
   duration = 500,
   disabled = false,
+  currentRing,
 }: LongPressTargetProps) {
   const [isPressing, setIsPressing] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -55,9 +58,41 @@ export function LongPressTarget({
     }
   }, []);
 
-  const radius = 25;
-  const circumference = 2 * Math.PI * radius;
-  const strokeDashoffset = circumference * (1 - progress);
+  // Create a wedge shape that covers all three rings at 12 o'clock
+  // Wedge extends from center (200, 200) to outer edge of decade ring
+  // Angle: ±20 degrees from 12 o'clock
+  const centerX = 200;
+  const centerY = 200;
+  const outerRadius = 220; // Beyond the outer ring (radius 180 + strokeWidth 40)
+  const wedgeAngle = 20; // degrees on each side of 12 o'clock
+
+  // Calculate wedge path coordinates
+  const startAngle = -90 - wedgeAngle; // -110 degrees
+  const endAngle = -90 + wedgeAngle; // -70 degrees
+
+  const startAngleRad = (startAngle * Math.PI) / 180;
+  const endAngleRad = (endAngle * Math.PI) / 180;
+
+  const startX = centerX + outerRadius * Math.cos(startAngleRad);
+  const startY = centerY + outerRadius * Math.sin(startAngleRad);
+  const endX = centerX + outerRadius * Math.cos(endAngleRad);
+  const endY = centerY + outerRadius * Math.sin(endAngleRad);
+
+  const wedgePath = [
+    `M ${centerX} ${centerY}`, // Start at center
+    `L ${startX} ${startY}`, // Line to start of arc
+    `A ${outerRadius} ${outerRadius} 0 0 1 ${endX} ${endY}`, // Arc
+    'Z', // Close path back to center
+  ].join(' ');
+
+  // Get the radius and stroke width for the current ring's progress indicator
+  const ringRadius =
+    currentRing === 'decade' ? 180 : currentRing === 'year' ? 130 : 80;
+  const strokeWidth = 40;
+
+  // Calculate the full circumference for a complete circle animation
+  const fullCircumference = 2 * Math.PI * ringRadius;
+  const strokeDashoffset = fullCircumference * (1 - progress);
 
   return (
     <g
@@ -70,43 +105,28 @@ export function LongPressTarget({
         touchAction: 'none',
       }}
     >
-      {/* Invisible hit area */}
-      <rect
-        x="175"
-        y="10"
-        width="50"
-        height="50"
-        fill="transparent"
-        pointerEvents="all"
-      />
+      {/* Wedge-shaped hit area covering all rings at 12 o'clock */}
+      <path d={wedgePath} fill="transparent" pointerEvents="all" opacity={0} />
 
-      {/* Progress ring */}
+      {/* Progress arc on the current ring - full circle animation */}
       {isPressing && (
         <motion.circle
-          cx="200"
-          cy="35"
-          r={radius}
+          cx={centerX}
+          cy={centerY}
+          r={ringRadius}
           fill="none"
           stroke="#10b981"
-          strokeWidth="4"
-          strokeDasharray={circumference}
+          strokeWidth={strokeWidth}
+          strokeDasharray={fullCircumference}
           strokeDashoffset={strokeDashoffset}
           strokeLinecap="round"
-          transform="rotate(-90 200 35)"
+          opacity={0.6}
+          transform={`rotate(-90 ${centerX} ${centerY})`}
           initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
+          animate={{ opacity: 0.6 }}
           exit={{ opacity: 0 }}
         />
       )}
-
-      {/* Visual indicator circle */}
-      <circle
-        cx="200"
-        cy="35"
-        r="15"
-        fill={isPressing ? '#10b981' : '#cbd5e1'}
-        opacity={isPressing ? 0.3 : 0.2}
-      />
     </g>
   );
 }

@@ -274,6 +274,7 @@ export function DialInterface() {
             state.gameStatus === 'lost' ||
             state.headlinesHeard === state.currentHeadlineIndex
           }
+          currentRing={state.currentRing}
         />
 
         {/* Center Play Button or Answer Display */}
