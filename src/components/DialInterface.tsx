@@ -185,11 +185,11 @@ export function DialInterface() {
   const getRingDimensions = (ringType: RingType) => {
     switch (ringType) {
       case 'decade':
-        return { radius: 180, strokeWidth: 40 };
+        return { radius: 170, strokeWidth: 40 };
       case 'year':
         return { radius: 130, strokeWidth: 40 };
       case 'month':
-        return { radius: 80, strokeWidth: 40 };
+        return { radius: 90, strokeWidth: 40 };
     }
   };
 
@@ -235,7 +235,7 @@ export function DialInterface() {
           <Ring
             ringType="decade"
             segments={ringConfig.decades}
-            radius={180}
+            radius={170}
             strokeWidth={40}
             rotation={0}
             isLocked={state.ringStates.decade.isLocked}
@@ -273,7 +273,7 @@ export function DialInterface() {
           <Ring
             ringType="month"
             segments={ringConfig.months}
-            radius={80}
+            radius={90}
             strokeWidth={40}
             rotation={0}
             isLocked={state.ringStates.month.isLocked}

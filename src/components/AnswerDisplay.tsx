@@ -18,7 +18,7 @@ export function AnswerDisplay({
   return (
     <g>
       {/* Background circle - using ring border color (#1e293b = slate-800) */}
-      <circle cx="200" cy="200" r="50" fill="#1e293b" />
+      <circle cx="200" cy="200" r="70" fill="#1e293b" />
 
       {/* Date text - first line */}
       <text
