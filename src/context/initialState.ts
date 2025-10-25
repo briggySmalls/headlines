@@ -6,6 +6,7 @@ export function createInitialState(dailyGame: DailyGame): GameState {
     dailyGameId: dailyGame.id,
     correctAnswer: dailyGame.answer,
     audioFiles: dailyGame.headlines,
+    radioStation: dailyGame.radioStation,
 
     currentRing: 'decade',
     headlinesHeard: 0,

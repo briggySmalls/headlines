@@ -280,9 +280,9 @@ export function DialInterface() {
         {/* Center Play Button or Answer Display */}
         {state.gameStatus === 'won' || state.gameStatus === 'lost' ? (
           <AnswerDisplay
-            decade={state.correctAnswer.decade}
             year={state.correctAnswer.year}
             month={state.correctAnswer.month}
+            radioStation={state.radioStation}
           />
         ) : (
           <PlayButton

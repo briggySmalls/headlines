@@ -20,6 +20,7 @@ export interface GameState {
     month: string;
   };
   audioFiles: [string, string, string]; // paths to 3 headline audio files
+  radioStation: string; // e.g., "Radio 4"
 
   currentRing: RingType;
   headlinesHeard: number; // 0-3 (0 = none played yet)
@@ -42,6 +43,7 @@ export interface DailyGame {
     month: string; // e.g., "Aug"
   };
   headlines: [string, string, string]; // audio file paths
+  radioStation: string; // e.g., "Radio 4"
 }
 
 export interface RingConfig {

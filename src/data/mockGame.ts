@@ -12,4 +12,5 @@ export const mockGame: DailyGame = {
     '/assets/headlines/1995-08/1995-08_2.mp3',
     '/assets/headlines/1995-08/1995-08_3.mp3',
   ],
+  radioStation: 'Radio 4',
 };

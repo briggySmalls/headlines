@@ -1,64 +1,57 @@
 interface AnswerDisplayProps {
-  decade: string;
   year: string;
   month: string;
+  radioStation: string;
 }
 
-export function AnswerDisplay({ decade, year, month }: AnswerDisplayProps) {
+export function AnswerDisplay({
+  year,
+  month,
+  radioStation,
+}: AnswerDisplayProps) {
+  // Parse the year to get day number
+  const dayNumber = '31'; // For "31 Aug 1995"
+
+  // Format: "31 Aug 1995"
+  const dateString = `${dayNumber} ${month} ${year}`;
+
   return (
     <g>
-      {/* Background circle */}
-      <circle
-        cx="200"
-        cy="200"
-        r="30"
-        fill="white"
-        stroke="#334155"
-        strokeWidth="2"
-      />
+      {/* Background circle - using ring border color (#1e293b = slate-800) */}
+      <circle cx="200" cy="200" r="50" fill="#1e293b" />
 
-      {/* Answer text */}
+      {/* Date text - first line */}
       <text
         x="200"
-        y="195"
+        y="192"
         textAnchor="middle"
         dominantBaseline="middle"
-        className="text-xs font-bold fill-slate-800 select-none"
+        className="text-sm font-semibold select-none"
         style={{
-          fontSize: '10px',
+          fontSize: '14px',
           userSelect: 'none',
           WebkitUserSelect: 'none',
+          fill: '#f1f5f9', // slate-100 for light text
         }}
       >
-        {decade}
+        {dateString}
       </text>
+
+      {/* Radio station text - second line */}
       <text
         x="200"
-        y="203"
+        y="208"
         textAnchor="middle"
         dominantBaseline="middle"
-        className="text-xs font-bold fill-slate-800 select-none"
+        className="text-sm font-semibold select-none"
         style={{
-          fontSize: '10px',
+          fontSize: '14px',
           userSelect: 'none',
           WebkitUserSelect: 'none',
+          fill: '#f1f5f9', // slate-100 for light text
         }}
       >
-        {year}
-      </text>
-      <text
-        x="200"
-        y="211"
-        textAnchor="middle"
-        dominantBaseline="middle"
-        className="text-xs font-bold fill-slate-800 select-none"
-        style={{
-          fontSize: '10px',
-          userSelect: 'none',
-          WebkitUserSelect: 'none',
-        }}
-      >
-        {month}
+        {radioStation}
       </text>
     </g>
   );
