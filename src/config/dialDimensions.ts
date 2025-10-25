@@ -3,9 +3,9 @@
  *
  * Design principles:
  * - SVG viewBox: 400x400, center at (200, 200)
- * - Rings touch edge-to-edge (no gaps between rings)
  * - 10px margin between outermost ring and viewport edge
- * - Center circle touches innermost ring
+ * - 10px gap between rings
+ * - 10px gap between innermost ring and center circle
  */
 
 export const DIAL_DIMENSIONS = {
@@ -19,26 +19,27 @@ export const DIAL_DIMENSIONS = {
 
   // Margins
   outerMargin: 10, // Gap between viewport edge and outermost ring
+  ringGap: 10, // Gap between rings
 
   // Ring stroke width (all rings use same width)
-  ringStrokeWidth: 48,
+  ringStrokeWidth: 40,
 
   // Ring radii (measured to center line of stroke)
   rings: {
     decade: {
-      radius: 166, // Outer edge: 190, Inner edge: 142
+      radius: 170, // Outer edge: 190, Inner edge: 150
     },
     year: {
-      radius: 118, // Outer edge: 142, Inner edge: 94
+      radius: 120, // Outer edge: 140, Inner edge: 100
     },
     month: {
-      radius: 70, // Outer edge: 94, Inner edge: 46
+      radius: 70, // Outer edge: 90, Inner edge: 50
     },
   },
 
   // Center circle
   centerCircle: {
-    radius: 46, // Touches month ring inner edge at 46
+    radius: 40, // Gap of 10px from month ring inner edge at 50
     textLineSpacing: 8, // Vertical spacing between text lines (half-spacing from center)
   },
 } as const;
