@@ -14,6 +14,8 @@ interface InteractiveRingProps {
   isLocked: boolean;
   color: RingColor;
   isBlurred: boolean;
+  incorrectGuesses: string[];
+  correctAnswer: string;
 }
 
 export function InteractiveRing({
@@ -25,6 +27,8 @@ export function InteractiveRing({
   isLocked,
   color,
   isBlurred,
+  incorrectGuesses,
+  correctAnswer,
 }: InteractiveRingProps) {
   const { dispatch, state } = useGame();
   const svgRef = useRef<SVGSVGElement | null>(null);
@@ -144,6 +148,8 @@ export function InteractiveRing({
         color={color}
         isBlurred={isBlurred}
         showIncorrectFlash={false}
+        incorrectGuesses={incorrectGuesses}
+        correctAnswer={correctAnswer}
       />
 
       {/* Annular hit area for pointer events - MUST be rendered AFTER Ring so it's on top */}

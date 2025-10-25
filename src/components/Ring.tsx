@@ -13,6 +13,7 @@ interface RingProps {
   isBlurred: boolean;
   showIncorrectFlash: boolean;
   incorrectGuesses: string[];
+  correctAnswer: string;
   onFlashComplete?: () => void;
 }
 
