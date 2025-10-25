@@ -242,6 +242,7 @@ export function DialInterface() {
             isBlurred={false}
             showIncorrectFlash={state.ringStates.decade.showIncorrectFlash}
             incorrectGuesses={state.ringStates.decade.incorrectGuesses}
+            correctAnswer={state.correctAnswer.decade}
             onFlashComplete={() => handleFlashComplete('decade')}
           />
         </motion.g>
@@ -262,6 +263,7 @@ export function DialInterface() {
             isBlurred={!state.ringStates.decade.isLocked}
             showIncorrectFlash={state.ringStates.year.showIncorrectFlash}
             incorrectGuesses={state.ringStates.year.incorrectGuesses}
+            correctAnswer={state.correctAnswer.year}
             onFlashComplete={() => handleFlashComplete('year')}
           />
         </motion.g>
@@ -282,6 +284,7 @@ export function DialInterface() {
             isBlurred={!state.ringStates.year.isLocked}
             showIncorrectFlash={state.ringStates.month.showIncorrectFlash}
             incorrectGuesses={state.ringStates.month.incorrectGuesses}
+            correctAnswer={state.correctAnswer.month}
             onFlashComplete={() => handleFlashComplete('month')}
           />
         </motion.g>
