@@ -24,7 +24,7 @@ export function DialInterface() {
   // Audio player for current headline
   const currentAudioSrc =
     state.audioFiles[state.currentHeadlineIndex] || state.audioFiles[0];
-  const { play, replay, isPlaying } = useAudioPlayer(currentAudioSrc);
+  const { play, isPlaying, duration } = useAudioPlayer(currentAudioSrc);
 
   const getCenterPoint = useCallback(() => {
     if (!svgRef.current) return { x: 0, y: 0 };
@@ -163,9 +163,8 @@ export function DialInterface() {
   );
 
   const handlePlayClick = useCallback(() => {
-    // If already playing, replay from start
+    // Disable clicking during playback
     if (isPlaying) {
-      replay();
       return;
     }
 
@@ -175,14 +174,7 @@ export function DialInterface() {
     }
 
     play();
-  }, [
-    isPlaying,
-    replay,
-    play,
-    state.headlinesHeard,
-    state.currentHeadlineIndex,
-    dispatch,
-  ]);
+  }, [isPlaying, play, state.headlinesHeard, state.currentHeadlineIndex, dispatch]);
 
   return (
     <div className="relative w-full max-w-md aspect-square touch-none select-none">
@@ -286,6 +278,7 @@ export function DialInterface() {
             isPlaying={isPlaying}
             onClick={handlePlayClick}
             disabled={false}
+            duration={duration}
           />
         )}
       </svg>
