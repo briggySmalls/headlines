@@ -80,19 +80,25 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 
         // Check if game is lost (3 headlines heard and incorrect guess)
         if (state.headlinesHeard >= 3) {
+          const updatedRingStates = {
+            decade: { ...state.ringStates.decade, isLocked: true },
+            year: { ...state.ringStates.year, isLocked: true },
+            month: { ...state.ringStates.month, isLocked: true },
+          };
+
+          // Update the current ring with the incorrect guess
+          updatedRingStates[ringType] = {
+            ...updatedRingStates[ringType],
+            showIncorrectFlash: true,
+            incorrectGuesses: [
+              ...state.ringStates[ringType].incorrectGuesses,
+              guessedValue,
+            ],
+          };
+
           return {
             ...state,
-            ringStates: {
-              ...state.ringStates,
-              [ringType]: {
-                ...state.ringStates[ringType],
-                showIncorrectFlash: true,
-                incorrectGuesses: [
-                  ...state.ringStates[ringType].incorrectGuesses,
-                  guessedValue,
-                ],
-              },
-            },
+            ringStates: updatedRingStates,
             gameStatus: 'lost',
           };
         }
