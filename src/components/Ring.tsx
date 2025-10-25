@@ -143,6 +143,7 @@ export function Ring({
                 className="text-xs font-semibold fill-slate-800 select-none"
                 style={{
                   fontSize: '14px',
+                  fontWeight: isCorrectAnswer && isLocked ? 'bold' : 'normal',
                   userSelect: 'none',
                   WebkitUserSelect: 'none',
                   filter: shouldBlurText
