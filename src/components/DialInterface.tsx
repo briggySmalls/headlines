@@ -348,11 +348,7 @@ export function DialInterface() {
             backgroundColor:
               state.headlinesHeard === state.currentHeadlineIndex
                 ? '#94a3b8'
-                : state.currentRing === 'decade'
-                  ? '#3b82f6'
-                  : state.currentRing === 'year'
-                    ? '#10b981'
-                    : '#f59e0b',
+                : '#FFD700',
             opacity: state.headlinesHeard === state.currentHeadlineIndex ? 0.5 : 1,
             cursor:
               state.headlinesHeard === state.currentHeadlineIndex ? 'default' : 'pointer',
