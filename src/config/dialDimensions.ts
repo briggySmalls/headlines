@@ -21,24 +21,24 @@ export const DIAL_DIMENSIONS = {
   outerMargin: 10, // Gap between viewport edge and outermost ring
 
   // Ring stroke width (all rings use same width)
-  ringStrokeWidth: 40,
+  ringStrokeWidth: 48,
 
   // Ring radii (measured to center line of stroke)
   rings: {
     decade: {
-      radius: 170, // Outer edge: 190, Inner edge: 150
+      radius: 166, // Outer edge: 190, Inner edge: 142
     },
     year: {
-      radius: 130, // Outer edge: 150, Inner edge: 110
+      radius: 118, // Outer edge: 142, Inner edge: 94
     },
     month: {
-      radius: 90, // Outer edge: 110, Inner edge: 70
+      radius: 70, // Outer edge: 94, Inner edge: 46
     },
   },
 
   // Center circle
   centerCircle: {
-    radius: 70, // Touches month ring inner edge at 70
+    radius: 46, // Touches month ring inner edge at 46
     textLineSpacing: 8, // Vertical spacing between text lines (half-spacing from center)
   },
 
