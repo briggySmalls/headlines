@@ -50,16 +50,17 @@ export function DialInterface() {
 
   const snapToSegment = useCallback(
     (rotation: number, segmentCount: number) => {
-      const normalizedRotation = ((rotation % 360) + 360) % 360;
       const anglePerSegment = 360 / segmentCount;
-      const nearestSegment = Math.round(normalizedRotation / anglePerSegment);
-      return (nearestSegment * anglePerSegment) % 360;
+      // Find the nearest segment without normalizing to 0-360
+      // This preserves rotations beyond ±360 degrees
+      const nearestSegment = Math.round(rotation / anglePerSegment);
+      return nearestSegment * anglePerSegment;
     },
     []
   );
 
   const handlePointerDown = useCallback(
-    (e: React.PointerEvent<SVGSVGElement>) => {
+    (e: React.PointerEvent) => {
       const currentRing = state.currentRing;
       if (state.ringStates[currentRing].isLocked) return;
 
@@ -70,6 +71,7 @@ export function DialInterface() {
       startAngleRef.current = (angle * 180) / Math.PI - currentRotation;
       currentRotationRef.current = currentRotation;
       setIsDragging(true);
+      e.stopPropagation();
     },
     [state, getCenterPoint]
   );
@@ -84,7 +86,24 @@ export function DialInterface() {
       const center = getCenterPoint();
       const angle = Math.atan2(e.clientY - center.y, e.clientX - center.x);
       const angleDegrees = (angle * 180) / Math.PI;
-      const newRotation = angleDegrees - startAngleRef.current;
+
+      // Calculate the new rotation
+      let newRotation = angleDegrees - startAngleRef.current;
+
+      // Handle discontinuity at -180/+180 boundary
+      // Find the smallest angular difference from current rotation
+      const currentRotation = currentRotationRef.current;
+      const diff = newRotation - currentRotation;
+
+      // If difference is > 180°, we crossed the boundary
+      if (diff > 180) {
+        newRotation -= 360;
+      } else if (diff < -180) {
+        newRotation += 360;
+      }
+
+      // Update the reference for next iteration
+      currentRotationRef.current = newRotation;
 
       dispatch({
         type: 'ROTATE_RING',
@@ -162,6 +181,18 @@ export function DialInterface() {
     [dispatch]
   );
 
+  // Get ring dimensions for hit area
+  const getRingDimensions = (ringType: RingType) => {
+    switch (ringType) {
+      case 'decade':
+        return { radius: 180, strokeWidth: 40 };
+      case 'year':
+        return { radius: 130, strokeWidth: 40 };
+      case 'month':
+        return { radius: 80, strokeWidth: 40 };
+    }
+  };
+
   const handlePlayClick = useCallback(() => {
     // Disable clicking during playback
     if (isPlaying) {
@@ -186,7 +217,6 @@ export function DialInterface() {
         viewBox="0 0 400 400"
         className="w-full h-full select-none"
         xmlns="http://www.w3.org/2000/svg"
-        onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
         onPointerCancel={handlePointerUp}
@@ -254,6 +284,35 @@ export function DialInterface() {
           />
         </motion.g>
 
+        {/* Invisible hit area for active ring only */}
+        {!state.ringStates[state.currentRing].isLocked && (() => {
+          const { radius, strokeWidth } = getRingDimensions(state.currentRing);
+          const outerRadius = radius + strokeWidth / 2;
+          const innerRadius = radius - strokeWidth / 2;
+
+          // Create a donut-shaped path for the ring hit area
+          const donutPath = `
+            M 200 ${200 - outerRadius}
+            A ${outerRadius} ${outerRadius} 0 1 1 200 ${200 + outerRadius}
+            A ${outerRadius} ${outerRadius} 0 1 1 200 ${200 - outerRadius}
+            M 200 ${200 - innerRadius}
+            A ${innerRadius} ${innerRadius} 0 1 0 200 ${200 + innerRadius}
+            A ${innerRadius} ${innerRadius} 0 1 0 200 ${200 - innerRadius}
+            Z
+          `;
+
+          return (
+            <path
+              d={donutPath}
+              fill="transparent"
+              style={{
+                cursor: 'grab',
+                pointerEvents: 'fill'
+              }}
+              onPointerDown={handlePointerDown}
+            />
+          );
+        })()}
 
         {/* Long Press Target at 12 o'clock */}
         <LongPressTarget
