@@ -2,6 +2,7 @@ import { GameState, RingType, RingColor } from '../types/game';
 
 export type GameAction =
   | { type: 'ROTATE_RING'; ringType: RingType; angle: number }
+  | { type: 'ROTATE_RING_FORCE'; ringType: RingType; angle: number }
   | { type: 'SET_RING_VALUE'; ringType: RingType; value: string }
   | {
       type: 'SUBMIT_GUESS';
@@ -23,6 +24,20 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       if (state.ringStates[action.ringType].isLocked) {
         return state;
       }
+      return {
+        ...state,
+        ringStates: {
+          ...state.ringStates,
+          [action.ringType]: {
+            ...state.ringStates[action.ringType],
+            rotationAngle: action.angle,
+          },
+        },
+      };
+    }
+
+    case 'ROTATE_RING_FORCE': {
+      // Force rotation even if ring is locked (used for game over animation)
       return {
         ...state,
         ringStates: {
