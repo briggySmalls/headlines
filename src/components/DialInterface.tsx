@@ -1,9 +1,9 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { Ring } from './Ring';
 import { PlayButton } from './PlayButton';
-import { AnswerDisplay } from './AnswerDisplay';
 import { useGame } from '../hooks/useGame';
 import { useAudioPlayer } from '../hooks/useAudioPlayer';
+import { useMultiAudioPlayer } from '../hooks/useMultiAudioPlayer';
 import { ringConfig } from '../data/ringConfig';
 import { motion } from 'framer-motion';
 import { RingType } from '../types/game';
@@ -69,10 +69,17 @@ export function DialInterface() {
     }
   }, [state.gameStatus, state.correctAnswer, dispatch, getRotationToAlignAnswer]);
 
-  // Audio player for current headline
+  // Audio player for current headline during game
   const currentAudioSrc =
     state.audioFiles[state.currentHeadlineIndex] || state.audioFiles[0];
-  const { play, isPlaying, duration } = useAudioPlayer(currentAudioSrc);
+  const singlePlayer = useAudioPlayer(currentAudioSrc);
+
+  // Multi-track player for game over (plays all 3 consecutively)
+  const multiPlayer = useMultiAudioPlayer([...state.audioFiles]);
+
+  // Use appropriate player based on game status
+  const isGameOver = state.gameStatus === 'won' || state.gameStatus === 'lost';
+  const { play, isPlaying, duration } = isGameOver ? multiPlayer : singlePlayer;
 
   const getCenterPoint = useCallback(() => {
     if (!svgRef.current) return { x: 0, y: 0 };
@@ -249,13 +256,19 @@ export function DialInterface() {
       return;
     }
 
-    // First time playing this headline - increment headlinesHeard
+    // If game is over, play all tracks consecutively
+    if (isGameOver && 'playAll' in multiPlayer) {
+      multiPlayer.playAll();
+      return;
+    }
+
+    // During game: First time playing this headline - increment headlinesHeard
     if (state.headlinesHeard === state.currentHeadlineIndex) {
       dispatch({ type: 'PLAY_HEADLINE' });
     }
 
     play();
-  }, [isPlaying, play, state.headlinesHeard, state.currentHeadlineIndex, dispatch]);
+  }, [isPlaying, play, state.headlinesHeard, state.currentHeadlineIndex, dispatch, isGameOver, multiPlayer]);
 
   return (
     <div className="relative w-full max-w-md touch-none select-none flex flex-col items-center" style={{ gap: '2rem' }}>
@@ -368,21 +381,13 @@ export function DialInterface() {
           );
         })()}
 
-        {/* Center Play Button or Answer Display */}
-        {state.gameStatus === 'won' || state.gameStatus === 'lost' ? (
-          <AnswerDisplay
-            year={state.correctAnswer.year}
-            month={state.correctAnswer.month}
-            radioStation={state.radioStation}
-          />
-        ) : (
-          <PlayButton
-            isPlaying={isPlaying}
-            onClick={handlePlayClick}
-            disabled={false}
-            duration={duration}
-          />
-        )}
+        {/* Center Play Button */}
+        <PlayButton
+          isPlaying={isPlaying}
+          onClick={handlePlayClick}
+          disabled={false}
+          duration={duration}
+        />
 
       </svg>
       </div>
@@ -392,12 +397,15 @@ export function DialInterface() {
         <button
           onClick={handleSubmitGuess}
           disabled={state.headlinesHeard === state.currentHeadlineIndex}
-          className="rounded-full font-bold text-white transition-all select-none uppercase font-sans"
+          className="rounded-full font-bold transition-all select-none uppercase font-sans"
           style={{
-            backgroundColor:
-              state.headlinesHeard === state.currentHeadlineIndex
-                ? '#94a3b8'
-                : '#FFD700',
+            backgroundColor: 'transparent',
+            border: state.headlinesHeard === state.currentHeadlineIndex
+              ? '3px solid #94a3b8'
+              : '3px solid #1e293b',
+            color: state.headlinesHeard === state.currentHeadlineIndex
+              ? '#94a3b8'
+              : '#1e293b',
             opacity: state.headlinesHeard === state.currentHeadlineIndex ? 0.5 : 1,
             cursor:
               state.headlinesHeard === state.currentHeadlineIndex ? 'default' : 'pointer',
