@@ -1,6 +1,5 @@
 import { useState, useRef, useCallback } from 'react';
 import { Ring } from './Ring';
-import { AnswerMarker } from './AnswerMarker';
 import { LongPressTarget } from './LongPressTarget';
 import { PlayButton } from './PlayButton';
 import { AnswerDisplay } from './AnswerDisplay';
@@ -263,8 +262,6 @@ export function DialInterface() {
           />
         </motion.g>
 
-        {/* Answer Marker at 12 o'clock */}
-        <AnswerMarker />
 
         {/* Long Press Target at 12 o'clock */}
         <LongPressTarget
