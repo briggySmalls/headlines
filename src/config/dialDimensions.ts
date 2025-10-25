@@ -41,12 +41,6 @@ export const DIAL_DIMENSIONS = {
     radius: 46, // Touches month ring inner edge at 46
     textLineSpacing: 8, // Vertical spacing between text lines (half-spacing from center)
   },
-
-  // Long press target
-  longPressTarget: {
-    outerRadius: 220, // Beyond decade ring outer edge (190)
-    wedgeAngle: 20, // Degrees on each side of 12 o'clock (40° total)
-  },
 } as const;
 
 // Helper functions
