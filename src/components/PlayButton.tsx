@@ -14,7 +14,7 @@ export function PlayButton({
   disabled,
   duration = 10,
 }: PlayButtonProps) {
-  const radius = 50;
+  const radius = 70;
   const centerX = 200;
   const centerY = 200;
 
@@ -42,7 +42,7 @@ export function PlayButton({
       ) : (
         // Play icon (triangle) - light color
         <motion.path
-          d="M 185 175 L 185 225 L 220 200 Z"
+          d="M 175 165 L 175 235 L 235 200 Z"
           fill="#f1f5f9"
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
