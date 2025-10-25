@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { Ring } from './Ring';
 import { PlayButton } from './PlayButton';
 import { AnswerDisplay } from './AnswerDisplay';
@@ -19,6 +19,51 @@ export function DialInterface() {
   // Get current values for each ring
   const decadeValue = state.ringStates.decade.selectedValue;
   const yearsForDecade = ringConfig.getYearsForDecade(decadeValue);
+
+  // Calculate rotation to align correct answer at 12 o'clock
+  const getRotationToAlignAnswer = useCallback(
+    (ringType: RingType, correctAnswer: string) => {
+      const segments =
+        ringType === 'decade'
+          ? ringConfig.decades
+          : ringType === 'year'
+            ? ringConfig.getYearsForDecade(state.correctAnswer.decade)
+            : ringConfig.months;
+
+      const answerIndex = segments.indexOf(correctAnswer);
+      if (answerIndex === -1) return 0;
+
+      const anglePerSegment = 360 / segments.length;
+      // Calculate rotation needed to move this segment to 12 o'clock
+      // Segments are offset by half a segment, and we rotate clockwise (negative)
+      return -(answerIndex * anglePerSegment);
+    },
+    [state.correctAnswer.decade]
+  );
+
+  // Animate rings to show correct answers when game is lost
+  useEffect(() => {
+    if (state.gameStatus === 'lost') {
+      // Wait a brief moment for the flash animation to complete
+      setTimeout(() => {
+        dispatch({
+          type: 'ROTATE_RING_FORCE',
+          ringType: 'decade',
+          angle: getRotationToAlignAnswer('decade', state.correctAnswer.decade),
+        });
+        dispatch({
+          type: 'ROTATE_RING_FORCE',
+          ringType: 'year',
+          angle: getRotationToAlignAnswer('year', state.correctAnswer.year),
+        });
+        dispatch({
+          type: 'ROTATE_RING_FORCE',
+          ringType: 'month',
+          angle: getRotationToAlignAnswer('month', state.correctAnswer.month),
+        });
+      }, 500);
+    }
+  }, [state.gameStatus, state.correctAnswer, dispatch, getRotationToAlignAnswer]);
 
   // Audio player for current headline
   const currentAudioSrc =
