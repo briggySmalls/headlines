@@ -9,6 +9,7 @@ import { useAudioPlayer } from '../hooks/useAudioPlayer';
 import { ringConfig } from '../data/ringConfig';
 import { motion } from 'framer-motion';
 import { RingType } from '../types/game';
+import { DIAL_DIMENSIONS, getRingRadius } from '../config/dialDimensions';
 
 export function DialInterface() {
   const { state, dispatch } = useGame();
@@ -183,14 +184,10 @@ export function DialInterface() {
 
   // Get ring dimensions for hit area
   const getRingDimensions = (ringType: RingType) => {
-    switch (ringType) {
-      case 'decade':
-        return { radius: 170, strokeWidth: 40 };
-      case 'year':
-        return { radius: 130, strokeWidth: 40 };
-      case 'month':
-        return { radius: 90, strokeWidth: 40 };
-    }
+    return {
+      radius: getRingRadius(ringType),
+      strokeWidth: DIAL_DIMENSIONS.ringStrokeWidth,
+    };
   };
 
   const handlePlayClick = useCallback(() => {
@@ -214,7 +211,7 @@ export function DialInterface() {
 
       <svg
         ref={svgRef}
-        viewBox="0 0 400 400"
+        viewBox={`0 0 ${DIAL_DIMENSIONS.viewBox.width} ${DIAL_DIMENSIONS.viewBox.height}`}
         className="w-full h-full select-none"
         xmlns="http://www.w3.org/2000/svg"
         onPointerMove={handlePointerMove}
@@ -235,8 +232,8 @@ export function DialInterface() {
           <Ring
             ringType="decade"
             segments={ringConfig.decades}
-            radius={170}
-            strokeWidth={40}
+            radius={getRingRadius('decade')}
+            strokeWidth={DIAL_DIMENSIONS.ringStrokeWidth}
             rotation={0}
             isLocked={state.ringStates.decade.isLocked}
             color={state.ringStates.decade.color}
@@ -254,8 +251,8 @@ export function DialInterface() {
           <Ring
             ringType="year"
             segments={yearsForDecade}
-            radius={130}
-            strokeWidth={40}
+            radius={getRingRadius('year')}
+            strokeWidth={DIAL_DIMENSIONS.ringStrokeWidth}
             rotation={0}
             isLocked={state.ringStates.year.isLocked}
             color={state.ringStates.year.color}
@@ -273,8 +270,8 @@ export function DialInterface() {
           <Ring
             ringType="month"
             segments={ringConfig.months}
-            radius={90}
-            strokeWidth={40}
+            radius={getRingRadius('month')}
+            strokeWidth={DIAL_DIMENSIONS.ringStrokeWidth}
             rotation={0}
             isLocked={state.ringStates.month.isLocked}
             color={state.ringStates.month.color}

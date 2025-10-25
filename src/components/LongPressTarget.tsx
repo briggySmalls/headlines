@@ -1,6 +1,7 @@
 import { useState, useRef, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { RingType } from '../types/game';
+import { DIAL_DIMENSIONS, getRingRadius } from '../config/dialDimensions';
 
 interface LongPressTargetProps {
   onLongPress: () => void;
@@ -59,12 +60,11 @@ export function LongPressTarget({
   }, []);
 
   // Create a wedge shape that covers all three rings at 12 o'clock
-  // Wedge extends from center (200, 200) to outer edge of decade ring
-  // Angle: ±20 degrees from 12 o'clock
-  const centerX = 200;
-  const centerY = 200;
-  const outerRadius = 220; // Beyond the outer ring (radius 180 + strokeWidth 40)
-  const wedgeAngle = 20; // degrees on each side of 12 o'clock
+  // Wedge extends from center to outer edge of decade ring
+  const centerX = DIAL_DIMENSIONS.viewBox.centerX;
+  const centerY = DIAL_DIMENSIONS.viewBox.centerY;
+  const outerRadius = DIAL_DIMENSIONS.longPressTarget.outerRadius;
+  const wedgeAngle = DIAL_DIMENSIONS.longPressTarget.wedgeAngle;
 
   // Calculate wedge path coordinates
   const startAngle = -90 - wedgeAngle; // -110 degrees
@@ -86,9 +86,8 @@ export function LongPressTarget({
   ].join(' ');
 
   // Get the radius and stroke width for the current ring's progress indicator
-  const ringRadius =
-    currentRing === 'decade' ? 180 : currentRing === 'year' ? 130 : 80;
-  const strokeWidth = 40;
+  const ringRadius = getRingRadius(currentRing);
+  const strokeWidth = DIAL_DIMENSIONS.ringStrokeWidth;
 
   // Calculate the full circumference for a complete circle animation
   const fullCircumference = 2 * Math.PI * ringRadius;

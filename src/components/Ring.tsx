@@ -1,5 +1,6 @@
 import { RingType, RingColor } from '../types/game';
 import { motion } from 'framer-motion';
+import { DIAL_DIMENSIONS } from '../config/dialDimensions';
 
 interface RingProps {
   ringType: RingType;
@@ -26,8 +27,8 @@ export function Ring({
   showIncorrectFlash,
   onFlashComplete,
 }: RingProps) {
-  const centerX = 200;
-  const centerY = 200;
+  const centerX = DIAL_DIMENSIONS.viewBox.centerX;
+  const centerY = DIAL_DIMENSIONS.viewBox.centerY;
   const segmentCount = segments.length;
   const anglePerSegment = 360 / segmentCount;
 

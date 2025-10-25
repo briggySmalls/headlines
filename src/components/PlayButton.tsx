@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
+import { DIAL_DIMENSIONS } from '../config/dialDimensions';
 
 interface PlayButtonProps {
   isPlaying: boolean;
@@ -14,9 +15,9 @@ export function PlayButton({
   disabled,
   duration = 10,
 }: PlayButtonProps) {
-  const radius = 70;
-  const centerX = 200;
-  const centerY = 200;
+  const radius = DIAL_DIMENSIONS.centerCircle.radius;
+  const centerX = DIAL_DIMENSIONS.viewBox.centerX;
+  const centerY = DIAL_DIMENSIONS.viewBox.centerY;
 
   return (
     <g>
@@ -42,7 +43,7 @@ export function PlayButton({
       ) : (
         // Play icon (triangle) - light color
         <motion.path
-          d="M 175 165 L 175 235 L 235 200 Z"
+          d={`M ${centerX - 25} ${centerY - 35} L ${centerX - 25} ${centerY + 35} L ${centerX + 35} ${centerY} Z`}
           fill="#f1f5f9"
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}

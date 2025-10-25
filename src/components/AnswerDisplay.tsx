@@ -1,3 +1,5 @@
+import { DIAL_DIMENSIONS } from '../config/dialDimensions';
+
 interface AnswerDisplayProps {
   year: string;
   month: string;
@@ -15,15 +17,20 @@ export function AnswerDisplay({
   // Format: "31 Aug 1995"
   const dateString = `${dayNumber} ${month} ${year}`;
 
+  const centerX = DIAL_DIMENSIONS.viewBox.centerX;
+  const centerY = DIAL_DIMENSIONS.viewBox.centerY;
+  const radius = DIAL_DIMENSIONS.centerCircle.radius;
+  const textLineSpacing = DIAL_DIMENSIONS.centerCircle.textLineSpacing;
+
   return (
     <g>
       {/* Background circle - using ring border color (#1e293b = slate-800) */}
-      <circle cx="200" cy="200" r="70" fill="#1e293b" />
+      <circle cx={centerX} cy={centerY} r={radius} fill="#1e293b" />
 
       {/* Date text - first line */}
       <text
-        x="200"
-        y="192"
+        x={centerX}
+        y={centerY - textLineSpacing}
         textAnchor="middle"
         dominantBaseline="middle"
         className="text-sm font-semibold select-none"
@@ -39,8 +46,8 @@ export function AnswerDisplay({
 
       {/* Radio station text - second line */}
       <text
-        x="200"
-        y="208"
+        x={centerX}
+        y={centerY + textLineSpacing}
         textAnchor="middle"
         dominantBaseline="middle"
         className="text-sm font-semibold select-none"
