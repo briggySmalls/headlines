@@ -74,11 +74,12 @@ export function DialInterface() {
     state.audioFiles[state.currentHeadlineIndex] || state.audioFiles[0];
   const singlePlayer = useAudioPlayer(currentAudioSrc);
 
-  // Multi-track player for game over (plays all 3 consecutively)
-  const multiPlayer = useMultiAudioPlayer([...state.audioFiles]);
-
   // Use appropriate player based on game status
   const isGameOver = state.gameStatus === 'won' || state.gameStatus === 'lost';
+
+  // Multi-track player for game over (plays all 3 consecutively) - only enabled when game is over
+  const multiPlayer = useMultiAudioPlayer([...state.audioFiles], isGameOver);
+
   const { play, isPlaying, duration } = isGameOver ? multiPlayer : singlePlayer;
 
   const getCenterPoint = useCallback(() => {

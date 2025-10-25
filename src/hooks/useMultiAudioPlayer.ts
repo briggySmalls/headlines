@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 
-export function useMultiAudioPlayer(srcs: string[]) {
+export function useMultiAudioPlayer(srcs: string[], enabled: boolean = true) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
@@ -32,18 +32,32 @@ export function useMultiAudioPlayer(srcs: string[]) {
 
   // Load current track
   useEffect(() => {
-    if (!srcs[currentTrackIndex]) return;
+    if (!enabled || !srcs[currentTrackIndex] || currentTrackIndex < 0) return;
 
     const audio = new Audio(srcs[currentTrackIndex]);
     audioRef.current = audio;
+    let isMounted = true;
 
     const handleLoadedMetadata = () => {
+      if (!isMounted) return;
+
       if (!isPlayingAllRef.current) {
         setDuration(audio.duration);
+      }
+      // If we're playing all and just loaded, start playing
+      if (isPlayingAllRef.current && isPlaying && isMounted) {
+        audio.play().catch((err) => {
+          // Only log if not an abort error from cleanup
+          if (err.name !== 'AbortError') {
+            console.error('Play error:', err);
+          }
+        });
       }
     };
 
     const handleEnded = () => {
+      if (!isMounted) return;
+
       // If playing all tracks, move to next
       if (isPlayingAllRef.current && currentTrackIndex < srcs.length - 1) {
         setCurrentTrackIndex(prev => prev + 1);
@@ -59,22 +73,13 @@ export function useMultiAudioPlayer(srcs: string[]) {
     audio.addEventListener('ended', handleEnded);
 
     return () => {
+      isMounted = false;
       audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
       audio.removeEventListener('ended', handleEnded);
       audio.pause();
       audio.src = '';
     };
-  }, [currentTrackIndex, srcs]);
-
-  // Auto-play next track when index changes during playAll
-  useEffect(() => {
-    if (isPlayingAllRef.current && currentTrackIndex > 0) {
-      setIsPlaying(true);
-      audioRef.current?.play().catch(() => {
-        // Ignore play errors
-      });
-    }
-  }, [currentTrackIndex]);
+  }, [currentTrackIndex, srcs, isPlaying]);
 
   const play = useCallback(() => {
     setIsPlaying(true);
@@ -85,16 +90,15 @@ export function useMultiAudioPlayer(srcs: string[]) {
 
   const playAll = useCallback(() => {
     isPlayingAllRef.current = true;
-    setCurrentTrackIndex(0);
-    setIsPlaying(true);
     setDuration(totalDuration);
     playAllStartTimeRef.current = Date.now();
-    // Audio will be loaded by useEffect and played
+
+    // Force reload from track 0
+    setCurrentTrackIndex(-1);
     setTimeout(() => {
-      audioRef.current?.play().catch(() => {
-        // Ignore play errors
-      });
-    }, 100);
+      setCurrentTrackIndex(0);
+      setIsPlaying(true);
+    }, 10);
   }, [totalDuration]);
 
   const pause = useCallback(() => {
