@@ -19,6 +19,7 @@ export function createInitialState(dailyGame: DailyGame): GameState {
         color: 'none',
         selectedValue: '1940s', // segment 0 at 12 o'clock
         showIncorrectFlash: false,
+        incorrectGuesses: [],
       },
       year: {
         rotationAngle: 0,
@@ -26,6 +27,7 @@ export function createInitialState(dailyGame: DailyGame): GameState {
         color: 'none',
         selectedValue: '1940', // segment 0 at 12 o'clock
         showIncorrectFlash: false,
+        incorrectGuesses: [],
       },
       month: {
         rotationAngle: 0,
@@ -33,6 +35,7 @@ export function createInitialState(dailyGame: DailyGame): GameState {
         color: 'none',
         selectedValue: 'Jan', // segment 0 at 12 o'clock
         showIncorrectFlash: false,
+        incorrectGuesses: [],
       },
     },
 

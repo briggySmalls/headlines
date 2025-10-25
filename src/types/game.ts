@@ -10,6 +10,7 @@ export interface RingState {
   color: RingColor;
   selectedValue: string; // current value at 12 o'clock
   showIncorrectFlash: boolean; // triggers red flash animation on incorrect guess
+  incorrectGuesses: string[]; // segments that were guessed incorrectly
 }
 
 export interface GameState {
