@@ -18,7 +18,11 @@ export function DialInterface() {
 
   // Get current values for each ring
   const decadeValue = state.ringStates.decade.selectedValue;
-  const yearsForDecade = ringConfig.getYearsForDecade(decadeValue);
+  // When game is over, show years for the correct decade, otherwise show for selected decade
+  const decadeToUse = state.gameStatus === 'lost' || state.gameStatus === 'won'
+    ? state.correctAnswer.decade
+    : decadeValue;
+  const yearsForDecade = ringConfig.getYearsForDecade(decadeToUse);
 
   // Calculate rotation to align correct answer at 12 o'clock
   const getRotationToAlignAnswer = useCallback(
