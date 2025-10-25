@@ -15,6 +15,7 @@ interface RingProps {
 }
 
 export function Ring({
+  ringType,
   segments,
   radius,
   strokeWidth,
@@ -37,8 +38,25 @@ export function Ring({
   const baseRingColor = getRingColor(color, isLocked);
   const flashColor = '#ef4444'; // red-500
 
+  // Unique filter ID for this ring instance
+  const filterId = `blur-${ringType}`;
+
   return (
     <g transform={`rotate(${rotation} ${centerX} ${centerY})`}>
+      {/* SVG blur filter definition - Safari compatible */}
+      <defs>
+        <filter
+          id={filterId}
+          x="-50%"
+          y="-50%"
+          width="200%"
+          height="200%"
+          filterUnits="objectBoundingBox"
+        >
+          <feGaussianBlur in="SourceGraphic" stdDeviation={isBlurred ? 8 : 0} />
+        </filter>
+      </defs>
+
       {/* Ring segments */}
       {segments.map((segment, index) => {
         // Offset by half a segment so the center of segment 0 is at 12 o'clock
@@ -90,7 +108,7 @@ export function Ring({
                 startAngle + anglePerSegment / 2 + 90
               } ${centerX} ${centerY})`}
             >
-              <motion.text
+              <text
                 x={centerX}
                 y={centerY - textRadius}
                 textAnchor="middle"
@@ -100,20 +118,12 @@ export function Ring({
                   fontSize: '14px',
                   userSelect: 'none',
                   WebkitUserSelect: 'none',
-                }}
-                initial={{
-                  filter: isBlurred ? 'blur(8px)' : 'blur(0px)',
-                }}
-                animate={{
-                  filter: isBlurred ? 'blur(8px)' : 'blur(0px)',
-                }}
-                transition={{
-                  duration: 0.3,
-                  ease: 'easeInOut',
+                  filter: `url(#${filterId})`,
+                  transition: 'filter 0.3s ease-in-out',
                 }}
               >
                 {segment}
-              </motion.text>
+              </text>
             </g>
           </g>
         );
