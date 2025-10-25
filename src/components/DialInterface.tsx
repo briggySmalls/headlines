@@ -2,7 +2,6 @@ import { useState, useRef, useCallback } from 'react';
 import { Ring } from './Ring';
 import { PlayButton } from './PlayButton';
 import { AnswerDisplay } from './AnswerDisplay';
-import { HeadlineCounter } from './HeadlineCounter';
 import { useGame } from '../hooks/useGame';
 import { useAudioPlayer } from '../hooks/useAudioPlayer';
 import { ringConfig } from '../data/ringConfig';
@@ -205,9 +204,6 @@ export function DialInterface() {
 
   return (
     <div className="relative w-full max-w-md touch-none select-none flex flex-col items-center" style={{ gap: '2rem' }}>
-      {/* Headline Counter */}
-      <HeadlineCounter headlinesHeard={state.headlinesHeard} total={3} />
-
       <div className="w-full aspect-square">
         <svg
           ref={svgRef}
