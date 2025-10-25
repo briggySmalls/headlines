@@ -41,9 +41,9 @@ export function PlayButton({
           duration={duration}
         />
       ) : (
-        // Play icon (triangle) - light color
+        // Play icon (triangle) - light color, scaled to fit smaller circle
         <motion.path
-          d={`M ${centerX - 25} ${centerY - 35} L ${centerX - 25} ${centerY + 35} L ${centerX + 35} ${centerY} Z`}
+          d={`M ${centerX - 16} ${centerY - 23} L ${centerX - 16} ${centerY + 23} L ${centerX + 23} ${centerY} Z`}
           fill="#f1f5f9"
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
