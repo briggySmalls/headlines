@@ -400,6 +400,11 @@ describe('gameReducer', () => {
       expect(newState.ringStates.year.rotationAngle).toBe(-180);
       // Month: 'Aug' is at index 7, anglePerSegment = 360/12 = 30°, rotation = -(7 * 30) = -210°
       expect(newState.ringStates.month.rotationAngle).toBe(-210);
+
+      // Uncompleted rings should turn red (decade was never guessed so color is None)
+      expect(newState.ringStates.decade.color).toBe(RingColor.Red);
+      expect(newState.ringStates.year.color).toBe(RingColor.Red);
+      expect(newState.ringStates.month.color).toBe(RingColor.Red);
     });
 
     it('should add incorrect guess to current ring when losing', () => {
@@ -414,6 +419,34 @@ describe('gameReducer', () => {
 
       expect(newState.ringStates.decade.incorrectGuesses).toContain('1970s');
       expect(newState.ringStates.decade.showIncorrectFlash).toBe(true);
+    });
+
+    it('should keep completed ring colors (gold/silver/bronze) but turn uncompleted rings red on loss', () => {
+      // Start with decade already locked as gold
+      const initialState = createStateWithDecadeLocked(RingColor.Gold);
+      // Simulate 3 headlines heard by setting state
+      const stateWith3Headlines = {
+        ...initialState,
+        headlinesHeard: 3,
+        currentHeadlineIndex: 2,
+        currentRing: RingType.Year,
+      };
+
+      // Lose on year ring
+      const newState = gameReducer(stateWith3Headlines, {
+        type: 'SUBMIT_GUESS',
+        ringType: RingType.Year,
+        guessedValue: '1993',
+        isCorrect: false,
+      });
+
+      // Decade was already completed - should keep gold color
+      expect(newState.ringStates.decade.color).toBe(RingColor.Gold);
+      // Year was never completed - should turn red
+      expect(newState.ringStates.year.color).toBe(RingColor.Red);
+      // Month was never completed - should turn red
+      expect(newState.ringStates.month.color).toBe(RingColor.Red);
+      expect(newState.gameStatus).toBe(GameStatus.Lost);
     });
 
     it('should work for incorrect guess on year ring', () => {
