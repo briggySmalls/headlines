@@ -34,7 +34,7 @@ export function DialInterface() {
   const isGameOver = state.gameStatus === GameStatus.Won || state.gameStatus === GameStatus.Lost;
 
   // Multi-track player for game over (plays all 3 consecutively) - only enabled when game is over
-  const multiPlayer = useMultiAudioPlayer([...state.audioFiles], isGameOver);
+  const multiPlayer = useMultiAudioPlayer(state.audioFiles, isGameOver);
 
   const { play, isPlaying, duration } = isGameOver ? multiPlayer : singlePlayer;
 
