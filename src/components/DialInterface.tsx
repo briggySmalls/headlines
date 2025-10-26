@@ -328,23 +328,36 @@ export function DialInterface() {
         <button
           onClick={handleSubmitGuess}
           disabled={state.headlinesHeard === state.currentHeadlineIndex}
-          className="rounded-full font-bold transition-all select-none uppercase font-sans"
+          className="font-bold transition-all select-none uppercase font-sans"
           style={{
-            backgroundColor: 'transparent',
-            border: state.headlinesHeard === state.currentHeadlineIndex
-              ? '3px solid #94a3b8'
-              : '3px solid #1e293b',
+            // Match play button: solid dark background with light text
+            backgroundColor: state.headlinesHeard === state.currentHeadlineIndex
+              ? '#94a3b8'  // slate-400 when disabled
+              : '#1e293b', // slate-800 when active (matches play button)
+            border: 'none',
+            borderRadius: '0.75rem', // rounded-xl equivalent (12px)
             color: state.headlinesHeard === state.currentHeadlineIndex
-              ? '#94a3b8'
-              : '#1e293b',
-            opacity: state.headlinesHeard === state.currentHeadlineIndex ? 0.5 : 1,
-            cursor:
-              state.headlinesHeard === state.currentHeadlineIndex ? 'default' : 'pointer',
+              ? '#64748b'  // slate-500 (darker text for contrast on gray bg)
+              : '#f1f5f9', // slate-100 (matches play button icon)
+            cursor: state.headlinesHeard === state.currentHeadlineIndex ? 'not-allowed' : 'pointer',
             fontSize: '2rem',
-            padding: '1rem 4rem',
+            padding: '0.75rem 3rem', // Thinner than before
+            boxShadow: state.headlinesHeard === state.currentHeadlineIndex
+              ? 'none'
+              : '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+          }}
+          onMouseEnter={(e) => {
+            if (state.headlinesHeard !== state.currentHeadlineIndex) {
+              e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)';
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (state.headlinesHeard !== state.currentHeadlineIndex) {
+              e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)';
+            }
           }}
         >
-          Submit
+          Confirm
         </button>
       )}
     </div>
