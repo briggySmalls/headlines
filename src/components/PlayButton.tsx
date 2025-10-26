@@ -51,6 +51,17 @@ export function PlayButton({
           style={{ pointerEvents: 'none' }}
         />
       )}
+
+      {/* Border circle - drawn last so it's on top of clock wipe */}
+      <circle
+        cx={centerX}
+        cy={centerY}
+        r={radius}
+        fill="none"
+        stroke="#1e293b"
+        strokeWidth="3"
+        style={{ pointerEvents: 'none' }}
+      />
     </g>
   );
 }
