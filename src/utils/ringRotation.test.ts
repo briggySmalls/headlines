@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { calculateRotationToAlignAnswer } from './ringRotation';
+import { calculateRotationToAlignAnswer, getSegmentAtTop, snapToSegment } from './ringRotation';
 import { RingType } from '../types/game';
 
 describe('calculateRotationToAlignAnswer', () => {
@@ -145,5 +145,130 @@ describe('calculateRotationToAlignAnswer', () => {
       );
       expect(rotation).toBe(0);
     });
+  });
+});
+
+describe('getSegmentAtTop', () => {
+  it('should return segment 0 at rotation 0', () => {
+    const segment = getSegmentAtTop(0, 12);
+    expect(segment).toBe(0);
+  });
+
+  it('should return segment 1 after rotating one segment clockwise', () => {
+    // 12 segments, anglePerSegment = 30°
+    // Rotating -30° (clockwise) should move segment 1 to top
+    const segment = getSegmentAtTop(-30, 12);
+    expect(segment).toBe(1);
+  });
+
+  it('should return segment 11 after rotating one segment counter-clockwise', () => {
+    // Rotating 30° (counter-clockwise) should move segment 11 to top
+    const segment = getSegmentAtTop(30, 12);
+    expect(segment).toBe(11);
+  });
+
+  it('should handle full rotation (360° = 0°)', () => {
+    const segment360 = getSegmentAtTop(360, 12);
+    const segment0 = getSegmentAtTop(0, 12);
+    expect(segment360).toBe(segment0);
+  });
+
+  it('should handle negative full rotation (-360° = 0°)', () => {
+    const segmentNeg360 = getSegmentAtTop(-360, 12);
+    const segment0 = getSegmentAtTop(0, 12);
+    expect(segmentNeg360).toBe(segment0);
+  });
+
+  it('should handle multi-rotation (720° = 0°)', () => {
+    const segment = getSegmentAtTop(720, 12);
+    expect(segment).toBe(0);
+  });
+
+  it('should work with 9 segments (decades)', () => {
+    // 9 segments, anglePerSegment = 40°
+    const segment = getSegmentAtTop(-40, 9);
+    expect(segment).toBe(1);
+  });
+
+  it('should work with 10 segments (years)', () => {
+    // 10 segments, anglePerSegment = 36°
+    const segment = getSegmentAtTop(-72, 10);
+    expect(segment).toBe(2);
+  });
+
+  it('should handle large negative rotations', () => {
+    // -390° = -360° - 30° = one full rotation + one segment clockwise
+    const segment = getSegmentAtTop(-390, 12);
+    expect(segment).toBe(1);
+  });
+
+  it('should handle large positive rotations', () => {
+    // 390° = 360° + 30° = one full rotation + one segment counter-clockwise
+    const segment = getSegmentAtTop(390, 12);
+    expect(segment).toBe(11);
+  });
+});
+
+describe('snapToSegment', () => {
+  it('should snap 0 to 0', () => {
+    const snapped = snapToSegment(0, 12);
+    expect(snapped).toBe(0);
+  });
+
+  it('should snap to nearest segment', () => {
+    // 12 segments, anglePerSegment = 30°
+    // 35° should snap to 30°
+    const snapped = snapToSegment(35, 12);
+    expect(snapped).toBe(30);
+  });
+
+  it('should snap down when closer to lower segment', () => {
+    // 32° should snap to 30° (closer than 60°)
+    const snapped = snapToSegment(32, 12);
+    expect(snapped).toBe(30);
+  });
+
+  it('should snap up when exactly between segments', () => {
+    // 45° is exactly between 30° and 60°, should round up to 60°
+    const snapped = snapToSegment(45, 12);
+    expect(snapped).toBe(60);
+  });
+
+  it('should preserve negative rotations', () => {
+    // -35° should snap to -30°
+    const snapped = snapToSegment(-35, 12);
+    expect(snapped).toBe(-30);
+  });
+
+  it('should preserve rotations beyond 360°', () => {
+    // 395° should snap to 390° (not normalize to 30°)
+    const snapped = snapToSegment(395, 12);
+    expect(snapped).toBe(390);
+  });
+
+  it('should preserve rotations beyond -360°', () => {
+    // -395° should snap to -390° (not normalize to -30°)
+    const snapped = snapToSegment(-395, 12);
+    expect(snapped).toBe(-390);
+  });
+
+  it('should work with 9 segments (decades)', () => {
+    // 9 segments, anglePerSegment = 40°
+    // 50° should snap to 40°
+    const snapped = snapToSegment(50, 9);
+    expect(snapped).toBe(40);
+  });
+
+  it('should work with 10 segments (years)', () => {
+    // 10 segments, anglePerSegment = 36°
+    // 70° should snap to 72°
+    const snapped = snapToSegment(70, 10);
+    expect(snapped).toBe(72);
+  });
+
+  it('should handle very large rotations', () => {
+    // 1000° should snap to nearest 30° multiple = 990°
+    const snapped = snapToSegment(1000, 12);
+    expect(snapped).toBe(990);
   });
 });

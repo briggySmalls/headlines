@@ -8,6 +8,7 @@ import { ringConfig } from '../data/ringConfig';
 import { motion } from 'framer-motion';
 import { RingType, GameStatus } from '../types/game';
 import { DIAL_DIMENSIONS, getRingRadius } from '../config/dialDimensions';
+import { getSegmentAtTop, snapToSegment } from '../utils/ringRotation';
 
 export function DialInterface() {
   const { state, dispatch } = useGame();
@@ -45,30 +46,6 @@ export function DialInterface() {
       y: rect.top + rect.height / 2,
     };
   }, []);
-
-  const getSegmentAtTop = useCallback(
-    (rotation: number, segmentCount: number) => {
-      const anglePerSegment = 360 / segmentCount;
-      // Invert rotation because clockwise rotation (positive) moves higher-indexed segments to the top
-      // Also account for the half-segment offset we use to center segments at 12 o'clock
-      const adjustedRotation = -rotation + anglePerSegment / 2;
-      const normalizedRotation = ((adjustedRotation % 360) + 360) % 360;
-      const segmentIndex = Math.floor(normalizedRotation / anglePerSegment);
-      return segmentIndex % segmentCount;
-    },
-    []
-  );
-
-  const snapToSegment = useCallback(
-    (rotation: number, segmentCount: number) => {
-      const anglePerSegment = 360 / segmentCount;
-      // Find the nearest segment without normalizing to 0-360
-      // This preserves rotations beyond ±360 degrees
-      const nearestSegment = Math.round(rotation / anglePerSegment);
-      return nearestSegment * anglePerSegment;
-    },
-    []
-  );
 
   const handlePointerDown = useCallback(
     (e: React.PointerEvent) => {
@@ -163,8 +140,6 @@ export function DialInterface() {
     isDragging,
     state,
     yearsForDecade,
-    snapToSegment,
-    getSegmentAtTop,
     dispatch,
   ]);
 
