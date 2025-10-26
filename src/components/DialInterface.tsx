@@ -2,6 +2,7 @@ import { useState, useRef, useCallback } from 'react';
 import { Ring } from './Ring';
 import { PlayButton } from './PlayButton';
 import { LivesIndicator } from './LivesIndicator';
+import { MagnifiedSegmentOverlay } from './MagnifiedSegmentOverlay';
 import { useGame } from '../hooks/useGame';
 import { useAudioPlayer } from '../hooks/useAudioPlayer';
 import { useMultiAudioPlayer } from '../hooks/useMultiAudioPlayer';
@@ -282,6 +283,59 @@ export function DialInterface() {
             onFlashComplete={() => handleFlashComplete(RingType.Month)}
           />
         </motion.g>
+
+        {/* Magnified segment overlays */}
+        {isGameOver ? (
+          // Game over: show magnification on all rings
+          <>
+            <MagnifiedSegmentOverlay
+              segments={ringConfig.decades}
+              rotation={state.ringStates.decade.rotationAngle}
+              radius={getRingRadius(RingType.Decade)}
+              strokeWidth={DIAL_DIMENSIONS.ringStrokeWidth}
+              color={state.ringStates.decade.color}
+              isLocked={state.ringStates.decade.isLocked}
+            />
+            <MagnifiedSegmentOverlay
+              segments={yearsForDecade}
+              rotation={state.ringStates.year.rotationAngle}
+              radius={getRingRadius(RingType.Year)}
+              strokeWidth={DIAL_DIMENSIONS.ringStrokeWidth}
+              color={state.ringStates.year.color}
+              isLocked={state.ringStates.year.isLocked}
+            />
+            <MagnifiedSegmentOverlay
+              segments={ringConfig.months}
+              rotation={state.ringStates.month.rotationAngle}
+              radius={getRingRadius(RingType.Month)}
+              strokeWidth={DIAL_DIMENSIONS.ringStrokeWidth}
+              color={state.ringStates.month.color}
+              isLocked={state.ringStates.month.isLocked}
+            />
+          </>
+        ) : (
+          // During gameplay: show magnification only on active unlocked ring
+          !state.ringStates[state.currentRing].isLocked && (() => {
+            const currentRing = state.currentRing;
+            const segments =
+              currentRing === RingType.Decade
+                ? ringConfig.decades
+                : currentRing === RingType.Year
+                  ? yearsForDecade
+                  : ringConfig.months;
+
+            return (
+              <MagnifiedSegmentOverlay
+                segments={segments}
+                rotation={state.ringStates[currentRing].rotationAngle}
+                radius={getRingRadius(currentRing)}
+                strokeWidth={DIAL_DIMENSIONS.ringStrokeWidth}
+                color={state.ringStates[currentRing].color}
+                isLocked={state.ringStates[currentRing].isLocked}
+              />
+            );
+          })()
+        )}
 
         {/* Invisible hit area for active ring only */}
         {!state.ringStates[state.currentRing].isLocked && (() => {

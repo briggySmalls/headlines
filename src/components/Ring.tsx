@@ -199,7 +199,7 @@ function describeArc(
   ].join(' ');
 }
 
-function getRingColor(color: RingColor, isLocked: boolean): string {
+export function getRingColor(color: RingColor, isLocked: boolean): string {
   if (!isLocked) {
     return '#94a3b8'; // slate-400
   }
