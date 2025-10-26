@@ -63,57 +63,6 @@ describe('gameReducer', () => {
     });
   });
 
-  describe('ROTATE_RING_FORCE', () => {
-    it('should update rotation angle even when ring is locked', () => {
-      const initialState = createMockGameState({
-        ringStates: {
-          decade: createRingState({ isLocked: true, rotationAngle: 0 }),
-          year: createRingState(),
-          month: createRingState(),
-        },
-      });
-
-      const newState = gameReducer(initialState, {
-        type: 'ROTATE_RING_FORCE',
-        ringType: RingType.Decade,
-        angle: -120,
-      });
-
-      expect(newState.ringStates.decade.rotationAngle).toBe(-120);
-      expect(newState.ringStates.decade.isLocked).toBe(true); // Still locked
-    });
-
-    it('should work for all ring types', () => {
-      const initialState = createMockGameState({
-        ringStates: {
-          decade: createRingState({ isLocked: true }),
-          year: createRingState({ isLocked: true }),
-          month: createRingState({ isLocked: true }),
-        },
-      });
-
-      const stateAfterDecade = gameReducer(initialState, {
-        type: 'ROTATE_RING_FORCE',
-        ringType: RingType.Decade,
-        angle: 90,
-      });
-      const stateAfterYear = gameReducer(stateAfterDecade, {
-        type: 'ROTATE_RING_FORCE',
-        ringType: RingType.Year,
-        angle: 180,
-      });
-      const finalState = gameReducer(stateAfterYear, {
-        type: 'ROTATE_RING_FORCE',
-        ringType: RingType.Month,
-        angle: 270,
-      });
-
-      expect(finalState.ringStates.decade.rotationAngle).toBe(90);
-      expect(finalState.ringStates.year.rotationAngle).toBe(180);
-      expect(finalState.ringStates.month.rotationAngle).toBe(270);
-    });
-  });
-
   describe('SET_RING_VALUE', () => {
     it('should update selected value for unlocked ring', () => {
       const initialState = createMockGameState();
@@ -429,7 +378,7 @@ describe('gameReducer', () => {
       expect(newState.gameStatus).toBe(GameStatus.Lost);
     });
 
-    it('should lock all rings when game is lost', () => {
+    it('should lock all rings and set rotation angles to show correct answers when game is lost', () => {
       const initialState = createStateWithThreeHeadlinesHeard();
 
       const newState = gameReducer(initialState, {
@@ -439,9 +388,18 @@ describe('gameReducer', () => {
         isCorrect: false,
       });
 
+      // All rings should be locked
       expect(newState.ringStates.decade.isLocked).toBe(true);
       expect(newState.ringStates.year.isLocked).toBe(true);
       expect(newState.ringStates.month.isLocked).toBe(true);
+
+      // Rotation angles should be set to align correct answers at 12 o'clock
+      // Decade: '1990s' is at index 5, anglePerSegment = 360/9 = 40°, rotation = -(5 * 40) = -200°
+      expect(newState.ringStates.decade.rotationAngle).toBe(-200);
+      // Year: '1995' is at index 5, anglePerSegment = 360/10 = 36°, rotation = -(5 * 36) = -180°
+      expect(newState.ringStates.year.rotationAngle).toBe(-180);
+      // Month: 'Aug' is at index 7, anglePerSegment = 360/12 = 30°, rotation = -(7 * 30) = -210°
+      expect(newState.ringStates.month.rotationAngle).toBe(-210);
     });
 
     it('should add incorrect guess to current ring when losing', () => {
