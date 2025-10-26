@@ -1,8 +1,8 @@
 import { GameState, RingType, GameStatus, RingColor } from '../types/game';
+import { calculateRotationToAlignAnswer } from '../utils/ringRotation';
 
 export type GameAction =
   | { type: 'ROTATE_RING'; ringType: RingType; angle: number }
-  | { type: 'ROTATE_RING_FORCE'; ringType: RingType; angle: number }
   | { type: 'SET_RING_VALUE'; ringType: RingType; value: string }
   | {
       type: 'SUBMIT_GUESS';
@@ -24,20 +24,6 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       if (state.ringStates[action.ringType].isLocked) {
         return state;
       }
-      return {
-        ...state,
-        ringStates: {
-          ...state.ringStates,
-          [action.ringType]: {
-            ...state.ringStates[action.ringType],
-            rotationAngle: action.angle,
-          },
-        },
-      };
-    }
-
-    case 'ROTATE_RING_FORCE': {
-      // Force rotation even if ring is locked (used for game over animation)
       return {
         ...state,
         ringStates: {
@@ -95,10 +81,39 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 
         // Check if game is lost (3 headlines heard and incorrect guess)
         if (state.headlinesHeard >= 3) {
+          // Calculate rotation angles to show correct answers
+          const decadeRotation = calculateRotationToAlignAnswer(
+            RingType.Decade,
+            state.correctAnswer.decade,
+            state.correctAnswer.decade
+          );
+          const yearRotation = calculateRotationToAlignAnswer(
+            RingType.Year,
+            state.correctAnswer.year,
+            state.correctAnswer.decade
+          );
+          const monthRotation = calculateRotationToAlignAnswer(
+            RingType.Month,
+            state.correctAnswer.month,
+            state.correctAnswer.decade
+          );
+
           const updatedRingStates = {
-            decade: { ...state.ringStates.decade, isLocked: true },
-            year: { ...state.ringStates.year, isLocked: true },
-            month: { ...state.ringStates.month, isLocked: true },
+            decade: {
+              ...state.ringStates.decade,
+              isLocked: true,
+              rotationAngle: decadeRotation,
+            },
+            year: {
+              ...state.ringStates.year,
+              isLocked: true,
+              rotationAngle: yearRotation,
+            },
+            month: {
+              ...state.ringStates.month,
+              isLocked: true,
+              rotationAngle: monthRotation,
+            },
           };
 
           // Update the current ring with the incorrect guess
