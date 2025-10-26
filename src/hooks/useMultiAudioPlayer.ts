@@ -11,10 +11,17 @@ export function useMultiAudioPlayer(srcs: string[], enabled: boolean = true) {
 
   // Pre-load all track durations
   useEffect(() => {
+    const audioElements: HTMLAudioElement[] = [];
+    let cancelled = false;
+
     const loadDurations = async () => {
       const durations: number[] = [];
       for (const src of srcs) {
+        if (cancelled) break;
+
         const audio = new Audio(src);
+        audioElements.push(audio);
+
         await new Promise<void>((resolve) => {
           audio.addEventListener('loadedmetadata', () => {
             durations.push(audio.duration);
@@ -22,9 +29,20 @@ export function useMultiAudioPlayer(srcs: string[], enabled: boolean = true) {
           });
         });
       }
-      setTrackDurations(durations);
+      if (!cancelled) {
+        setTrackDurations(durations);
+      }
     };
+
     loadDurations();
+
+    return () => {
+      cancelled = true;
+      audioElements.forEach(audio => {
+        audio.pause();
+        audio.src = '';
+      });
+    };
   }, [srcs]);
 
   // Calculate total duration when playing all tracks
@@ -79,7 +97,7 @@ export function useMultiAudioPlayer(srcs: string[], enabled: boolean = true) {
       audio.pause();
       audio.src = '';
     };
-  }, [currentTrackIndex, srcs, isPlaying]);
+  }, [currentTrackIndex, srcs, isPlaying, enabled]);
 
   const play = useCallback(() => {
     setIsPlaying(true);
