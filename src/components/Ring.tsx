@@ -104,7 +104,7 @@ export function Ring({
               )}
               fill={segmentColor}
               stroke="#1e293b"
-              strokeWidth="1"
+              strokeWidth="2"
               animate={{
                 fill: showIncorrectFlash
                   ? [segmentColor, flashColor, segmentColor]
