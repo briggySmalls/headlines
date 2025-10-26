@@ -1,4 +1,4 @@
-import { GameState } from '../types/game';
+import { GameState, RingType, GameStatus, RingColor } from '../types/game';
 import { DailyGame } from '../types/game';
 
 export function createInitialState(dailyGame: DailyGame): GameState {
@@ -8,37 +8,37 @@ export function createInitialState(dailyGame: DailyGame): GameState {
     audioFiles: dailyGame.headlines,
     radioStation: dailyGame.radioStation,
 
-    currentRing: 'decade',
+    currentRing: RingType.Decade,
     headlinesHeard: 0,
     currentHeadlineIndex: 0,
 
     ringStates: {
-      decade: {
+      [RingType.Decade]: {
         rotationAngle: 0,
         isLocked: false,
-        color: 'none',
+        color: RingColor.None,
         selectedValue: '1940s', // segment 0 at 12 o'clock
         showIncorrectFlash: false,
         incorrectGuesses: [],
       },
-      year: {
+      [RingType.Year]: {
         rotationAngle: 0,
         isLocked: false,
-        color: 'none',
+        color: RingColor.None,
         selectedValue: '1940', // segment 0 at 12 o'clock
         showIncorrectFlash: false,
         incorrectGuesses: [],
       },
-      month: {
+      [RingType.Month]: {
         rotationAngle: 0,
         isLocked: false,
-        color: 'none',
+        color: RingColor.None,
         selectedValue: 'Jan', // segment 0 at 12 o'clock
         showIncorrectFlash: false,
         incorrectGuesses: [],
       },
     },
 
-    gameStatus: 'not_started',
+    gameStatus: GameStatus.NotStarted,
   };
 }

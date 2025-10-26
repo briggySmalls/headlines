@@ -1,4 +1,4 @@
-import { GameState, RingType, RingColor } from '../types/game';
+import { GameState, RingType, GameStatus, RingColor } from '../types/game';
 
 export type GameAction =
   | { type: 'ROTATE_RING'; ringType: RingType; angle: number }
@@ -85,7 +85,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
             },
           },
           currentRing: nextRing || ringType,
-          gameStatus: nextRing ? state.gameStatus : 'won',
+          gameStatus: nextRing ? state.gameStatus : GameStatus.Won,
         };
       } else {
         // Incorrect guess - show red flash, add to incorrect guesses, and progress to next headline
@@ -114,7 +114,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
           return {
             ...state,
             ringStates: updatedRingStates,
-            gameStatus: 'lost',
+            gameStatus: GameStatus.Lost,
           };
         }
 
@@ -174,7 +174,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
           ? state.headlinesHeard + 1
           : state.headlinesHeard,
         gameStatus:
-          state.gameStatus === 'not_started' ? 'playing' : state.gameStatus,
+          state.gameStatus === GameStatus.NotStarted ? GameStatus.Playing : state.gameStatus,
       };
     }
 
@@ -188,14 +188,14 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
     case 'WIN_GAME': {
       return {
         ...state,
-        gameStatus: 'won',
+        gameStatus: GameStatus.Won,
       };
     }
 
     case 'LOSE_GAME': {
       return {
         ...state,
-        gameStatus: 'lost',
+        gameStatus: GameStatus.Lost,
       };
     }
 
@@ -209,14 +209,14 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 }
 
 function getColorForHeadlines(headlinesHeard: number): RingColor {
-  if (headlinesHeard === 1) return 'gold';
-  if (headlinesHeard === 2) return 'silver';
-  if (headlinesHeard === 3) return 'bronze';
-  return 'none';
+  if (headlinesHeard === 1) return RingColor.Gold;
+  if (headlinesHeard === 2) return RingColor.Silver;
+  if (headlinesHeard === 3) return RingColor.Bronze;
+  return RingColor.None;
 }
 
 function getNextRing(currentRing: RingType): RingType | null {
-  if (currentRing === 'decade') return 'year';
-  if (currentRing === 'year') return 'month';
+  if (currentRing === RingType.Decade) return RingType.Year;
+  if (currentRing === RingType.Year) return RingType.Month;
   return null; // month is the last ring
 }

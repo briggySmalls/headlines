@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { gameReducer } from './gameReducer';
+import { RingType, GameStatus, RingColor } from '../types/game';
 import {
   createMockGameState,
   createRingState,
@@ -15,7 +16,7 @@ describe('gameReducer', () => {
 
       const newState = gameReducer(initialState, {
         type: 'ROTATE_RING',
-        ringType: 'decade',
+        ringType: RingType.Decade,
         angle: 45,
       });
 
@@ -33,7 +34,7 @@ describe('gameReducer', () => {
 
       const newState = gameReducer(initialState, {
         type: 'ROTATE_RING',
-        ringType: 'decade',
+        ringType: RingType.Decade,
         angle: 45,
       });
 
@@ -52,7 +53,7 @@ describe('gameReducer', () => {
 
       const newState = gameReducer(initialState, {
         type: 'ROTATE_RING',
-        ringType: 'year',
+        ringType: RingType.Year,
         angle: 90,
       });
 
@@ -74,7 +75,7 @@ describe('gameReducer', () => {
 
       const newState = gameReducer(initialState, {
         type: 'ROTATE_RING_FORCE',
-        ringType: 'decade',
+        ringType: RingType.Decade,
         angle: -120,
       });
 
@@ -93,17 +94,17 @@ describe('gameReducer', () => {
 
       const stateAfterDecade = gameReducer(initialState, {
         type: 'ROTATE_RING_FORCE',
-        ringType: 'decade',
+        ringType: RingType.Decade,
         angle: 90,
       });
       const stateAfterYear = gameReducer(stateAfterDecade, {
         type: 'ROTATE_RING_FORCE',
-        ringType: 'year',
+        ringType: RingType.Year,
         angle: 180,
       });
       const finalState = gameReducer(stateAfterYear, {
         type: 'ROTATE_RING_FORCE',
-        ringType: 'month',
+        ringType: RingType.Month,
         angle: 270,
       });
 
@@ -119,7 +120,7 @@ describe('gameReducer', () => {
 
       const newState = gameReducer(initialState, {
         type: 'SET_RING_VALUE',
-        ringType: 'decade',
+        ringType: RingType.Decade,
         value: '1980s',
       });
 
@@ -140,7 +141,7 @@ describe('gameReducer', () => {
 
       const newState = gameReducer(initialState, {
         type: 'SET_RING_VALUE',
-        ringType: 'decade',
+        ringType: RingType.Decade,
         value: '1980s',
       });
 
@@ -159,7 +160,7 @@ describe('gameReducer', () => {
 
       const newState = gameReducer(initialState, {
         type: 'SET_RING_VALUE',
-        ringType: 'year',
+        ringType: RingType.Year,
         value: '1995',
       });
 
@@ -172,7 +173,7 @@ describe('gameReducer', () => {
   describe('SUBMIT_GUESS - Correct', () => {
     it('should lock decade ring with gold color when 1 headline heard', () => {
       const initialState = createMockGameState({
-        currentRing: 'decade',
+        currentRing: RingType.Decade,
         headlinesHeard: 1,
         ringStates: {
           decade: createRingState({ selectedValue: '1990s' }),
@@ -183,18 +184,18 @@ describe('gameReducer', () => {
 
       const newState = gameReducer(initialState, {
         type: 'SUBMIT_GUESS',
-        ringType: 'decade',
+        ringType: RingType.Decade,
         guessedValue: '1990s',
         isCorrect: true,
       });
 
       expect(newState.ringStates.decade.isLocked).toBe(true);
-      expect(newState.ringStates.decade.color).toBe('gold');
+      expect(newState.ringStates.decade.color).toBe(RingColor.Gold);
     });
 
     it('should lock decade ring with silver color when 2 headlines heard', () => {
       const initialState = createMockGameState({
-        currentRing: 'decade',
+        currentRing: RingType.Decade,
         headlinesHeard: 2,
         ringStates: {
           decade: createRingState({ selectedValue: '1990s' }),
@@ -205,18 +206,18 @@ describe('gameReducer', () => {
 
       const newState = gameReducer(initialState, {
         type: 'SUBMIT_GUESS',
-        ringType: 'decade',
+        ringType: RingType.Decade,
         guessedValue: '1990s',
         isCorrect: true,
       });
 
       expect(newState.ringStates.decade.isLocked).toBe(true);
-      expect(newState.ringStates.decade.color).toBe('silver');
+      expect(newState.ringStates.decade.color).toBe(RingColor.Silver);
     });
 
     it('should lock decade ring with bronze color when 3 headlines heard', () => {
       const initialState = createMockGameState({
-        currentRing: 'decade',
+        currentRing: RingType.Decade,
         headlinesHeard: 3,
         ringStates: {
           decade: createRingState({ selectedValue: '1990s' }),
@@ -227,18 +228,18 @@ describe('gameReducer', () => {
 
       const newState = gameReducer(initialState, {
         type: 'SUBMIT_GUESS',
-        ringType: 'decade',
+        ringType: RingType.Decade,
         guessedValue: '1990s',
         isCorrect: true,
       });
 
       expect(newState.ringStates.decade.isLocked).toBe(true);
-      expect(newState.ringStates.decade.color).toBe('bronze');
+      expect(newState.ringStates.decade.color).toBe(RingColor.Bronze);
     });
 
     it('should advance from decade to year ring', () => {
       const initialState = createMockGameState({
-        currentRing: 'decade',
+        currentRing: RingType.Decade,
         headlinesHeard: 1,
         ringStates: {
           decade: createRingState({ selectedValue: '1990s' }),
@@ -249,13 +250,13 @@ describe('gameReducer', () => {
 
       const newState = gameReducer(initialState, {
         type: 'SUBMIT_GUESS',
-        ringType: 'decade',
+        ringType: RingType.Decade,
         guessedValue: '1990s',
         isCorrect: true,
       });
 
-      expect(newState.currentRing).toBe('year');
-      expect(newState.gameStatus).toBe('not_started'); // Still not won
+      expect(newState.currentRing).toBe(RingType.Year);
+      expect(newState.gameStatus).toBe(GameStatus.NotStarted); // Still not won
     });
 
     it('should advance from year to month ring', () => {
@@ -263,14 +264,14 @@ describe('gameReducer', () => {
 
       const newState = gameReducer(initialState, {
         type: 'SUBMIT_GUESS',
-        ringType: 'year',
+        ringType: RingType.Year,
         guessedValue: '1995',
         isCorrect: true,
       });
 
       expect(newState.ringStates.year.isLocked).toBe(true);
-      expect(newState.currentRing).toBe('month');
-      expect(newState.gameStatus).toBe('playing');
+      expect(newState.currentRing).toBe(RingType.Month);
+      expect(newState.gameStatus).toBe(GameStatus.Playing);
     });
 
     it('should set game status to won when month is guessed correctly', () => {
@@ -278,14 +279,14 @@ describe('gameReducer', () => {
 
       const newState = gameReducer(initialState, {
         type: 'SUBMIT_GUESS',
-        ringType: 'month',
+        ringType: RingType.Month,
         guessedValue: 'Aug',
         isCorrect: true,
       });
 
       expect(newState.ringStates.month.isLocked).toBe(true);
-      expect(newState.gameStatus).toBe('won');
-      expect(newState.currentRing).toBe('month'); // Stays on month
+      expect(newState.gameStatus).toBe(GameStatus.Won);
+      expect(newState.currentRing).toBe(RingType.Month); // Stays on month
     });
 
     it('should preserve other ring states when locking one ring', () => {
@@ -293,14 +294,14 @@ describe('gameReducer', () => {
 
       const newState = gameReducer(initialState, {
         type: 'SUBMIT_GUESS',
-        ringType: 'year',
+        ringType: RingType.Year,
         guessedValue: '1995',
         isCorrect: true,
       });
 
       // Decade should remain locked
       expect(newState.ringStates.decade.isLocked).toBe(true);
-      expect(newState.ringStates.decade.color).toBe('gold');
+      expect(newState.ringStates.decade.color).toBe(RingColor.Gold);
       // Year should now be locked
       expect(newState.ringStates.year.isLocked).toBe(true);
       // Month should remain unlocked
@@ -311,13 +312,13 @@ describe('gameReducer', () => {
   describe('SUBMIT_GUESS - Incorrect', () => {
     it('should add guess to incorrectGuesses array', () => {
       const initialState = createMockGameState({
-        currentRing: 'decade',
+        currentRing: RingType.Decade,
         headlinesHeard: 1,
       });
 
       const newState = gameReducer(initialState, {
         type: 'SUBMIT_GUESS',
-        ringType: 'decade',
+        ringType: RingType.Decade,
         guessedValue: '1980s',
         isCorrect: false,
       });
@@ -327,13 +328,13 @@ describe('gameReducer', () => {
 
     it('should show incorrect flash', () => {
       const initialState = createMockGameState({
-        currentRing: 'decade',
+        currentRing: RingType.Decade,
         headlinesHeard: 1,
       });
 
       const newState = gameReducer(initialState, {
         type: 'SUBMIT_GUESS',
-        ringType: 'decade',
+        ringType: RingType.Decade,
         guessedValue: '1980s',
         isCorrect: false,
       });
@@ -343,14 +344,14 @@ describe('gameReducer', () => {
 
     it('should advance headline index', () => {
       const initialState = createMockGameState({
-        currentRing: 'decade',
+        currentRing: RingType.Decade,
         headlinesHeard: 1,
         currentHeadlineIndex: 0,
       });
 
       const newState = gameReducer(initialState, {
         type: 'SUBMIT_GUESS',
-        ringType: 'decade',
+        ringType: RingType.Decade,
         guessedValue: '1980s',
         isCorrect: false,
       });
@@ -360,13 +361,13 @@ describe('gameReducer', () => {
 
     it('should increment headlinesHeard', () => {
       const initialState = createMockGameState({
-        currentRing: 'decade',
+        currentRing: RingType.Decade,
         headlinesHeard: 1,
       });
 
       const newState = gameReducer(initialState, {
         type: 'SUBMIT_GUESS',
-        ringType: 'decade',
+        ringType: RingType.Decade,
         guessedValue: '1980s',
         isCorrect: false,
       });
@@ -376,14 +377,14 @@ describe('gameReducer', () => {
 
     it('should cap headlinesHeard at 3', () => {
       const initialState = createMockGameState({
-        currentRing: 'decade',
+        currentRing: RingType.Decade,
         headlinesHeard: 3,
         currentHeadlineIndex: 2,
       });
 
       const newState = gameReducer(initialState, {
         type: 'SUBMIT_GUESS',
-        ringType: 'decade',
+        ringType: RingType.Decade,
         guessedValue: '1980s',
         isCorrect: false,
       });
@@ -393,7 +394,7 @@ describe('gameReducer', () => {
 
     it('should accumulate multiple incorrect guesses', () => {
       const initialState = createMockGameState({
-        currentRing: 'decade',
+        currentRing: RingType.Decade,
         headlinesHeard: 1,
         ringStates: {
           decade: createRingState({ incorrectGuesses: ['1950s'] }),
@@ -404,7 +405,7 @@ describe('gameReducer', () => {
 
       const newState = gameReducer(initialState, {
         type: 'SUBMIT_GUESS',
-        ringType: 'decade',
+        ringType: RingType.Decade,
         guessedValue: '1980s',
         isCorrect: false,
       });
@@ -420,12 +421,12 @@ describe('gameReducer', () => {
 
       const newState = gameReducer(initialState, {
         type: 'SUBMIT_GUESS',
-        ringType: 'decade',
+        ringType: RingType.Decade,
         guessedValue: '1970s',
         isCorrect: false,
       });
 
-      expect(newState.gameStatus).toBe('lost');
+      expect(newState.gameStatus).toBe(GameStatus.Lost);
     });
 
     it('should lock all rings when game is lost', () => {
@@ -433,7 +434,7 @@ describe('gameReducer', () => {
 
       const newState = gameReducer(initialState, {
         type: 'SUBMIT_GUESS',
-        ringType: 'decade',
+        ringType: RingType.Decade,
         guessedValue: '1970s',
         isCorrect: false,
       });
@@ -448,7 +449,7 @@ describe('gameReducer', () => {
 
       const newState = gameReducer(initialState, {
         type: 'SUBMIT_GUESS',
-        ringType: 'decade',
+        ringType: RingType.Decade,
         guessedValue: '1970s',
         isCorrect: false,
       });
@@ -462,7 +463,7 @@ describe('gameReducer', () => {
 
       const newState = gameReducer(initialState, {
         type: 'SUBMIT_GUESS',
-        ringType: 'year',
+        ringType: RingType.Year,
         guessedValue: '1993',
         isCorrect: false,
       });
@@ -477,7 +478,7 @@ describe('gameReducer', () => {
 
       const newState = gameReducer(initialState, {
         type: 'SUBMIT_GUESS',
-        ringType: 'month',
+        ringType: RingType.Month,
         guessedValue: 'Jul',
         isCorrect: false,
       });
@@ -494,12 +495,12 @@ describe('gameReducer', () => {
 
       const newState = gameReducer(initialState, {
         type: 'LOCK_RING',
-        ringType: 'decade',
+        ringType: RingType.Decade,
         color: 'gold',
       });
 
       expect(newState.ringStates.decade.isLocked).toBe(true);
-      expect(newState.ringStates.decade.color).toBe('gold');
+      expect(newState.ringStates.decade.color).toBe(RingColor.Gold);
     });
 
     it('should work with all ring types and colors', () => {
@@ -507,28 +508,28 @@ describe('gameReducer', () => {
 
       const stateAfterDecade = gameReducer(initialState, {
         type: 'LOCK_RING',
-        ringType: 'decade',
+        ringType: RingType.Decade,
         color: 'gold',
       });
 
       const stateAfterYear = gameReducer(stateAfterDecade, {
         type: 'LOCK_RING',
-        ringType: 'year',
+        ringType: RingType.Year,
         color: 'silver',
       });
 
       const finalState = gameReducer(stateAfterYear, {
         type: 'LOCK_RING',
-        ringType: 'month',
+        ringType: RingType.Month,
         color: 'bronze',
       });
 
       expect(finalState.ringStates.decade.isLocked).toBe(true);
-      expect(finalState.ringStates.decade.color).toBe('gold');
+      expect(finalState.ringStates.decade.color).toBe(RingColor.Gold);
       expect(finalState.ringStates.year.isLocked).toBe(true);
-      expect(finalState.ringStates.year.color).toBe('silver');
+      expect(finalState.ringStates.year.color).toBe(RingColor.Silver);
       expect(finalState.ringStates.month.isLocked).toBe(true);
-      expect(finalState.ringStates.month.color).toBe('bronze');
+      expect(finalState.ringStates.month.color).toBe(RingColor.Bronze);
     });
 
     it('should preserve other ring state properties', () => {
@@ -546,7 +547,7 @@ describe('gameReducer', () => {
 
       const newState = gameReducer(initialState, {
         type: 'LOCK_RING',
-        ringType: 'decade',
+        ringType: RingType.Decade,
         color: 'gold',
       });
 
@@ -568,7 +569,7 @@ describe('gameReducer', () => {
 
       const newState = gameReducer(initialState, {
         type: 'CLEAR_INCORRECT_FLASH',
-        ringType: 'decade',
+        ringType: RingType.Decade,
       });
 
       expect(newState.ringStates.decade.showIncorrectFlash).toBe(false);
@@ -585,17 +586,17 @@ describe('gameReducer', () => {
 
       const stateAfterDecade = gameReducer(initialState, {
         type: 'CLEAR_INCORRECT_FLASH',
-        ringType: 'decade',
+        ringType: RingType.Decade,
       });
 
       const stateAfterYear = gameReducer(stateAfterDecade, {
         type: 'CLEAR_INCORRECT_FLASH',
-        ringType: 'year',
+        ringType: RingType.Year,
       });
 
       const finalState = gameReducer(stateAfterYear, {
         type: 'CLEAR_INCORRECT_FLASH',
-        ringType: 'month',
+        ringType: RingType.Month,
       });
 
       expect(finalState.ringStates.decade.showIncorrectFlash).toBe(false);
@@ -618,7 +619,7 @@ describe('gameReducer', () => {
 
       const newState = gameReducer(initialState, {
         type: 'CLEAR_INCORRECT_FLASH',
-        ringType: 'decade',
+        ringType: RingType.Decade,
       });
 
       expect(newState.ringStates.decade.incorrectGuesses).toEqual(['1980s']);
@@ -655,7 +656,7 @@ describe('gameReducer', () => {
 
     it('should change status from not_started to playing', () => {
       const initialState = createMockGameState({
-        gameStatus: 'not_started',
+        gameStatus: GameStatus.NotStarted,
         headlinesHeard: 0,
         currentHeadlineIndex: 0,
       });
@@ -664,12 +665,12 @@ describe('gameReducer', () => {
         type: 'PLAY_HEADLINE',
       });
 
-      expect(newState.gameStatus).toBe('playing');
+      expect(newState.gameStatus).toBe(GameStatus.Playing);
     });
 
     it('should not change status if already playing', () => {
       const initialState = createMockGameState({
-        gameStatus: 'playing',
+        gameStatus: GameStatus.Playing,
         headlinesHeard: 1,
         currentHeadlineIndex: 1,
       });
@@ -678,12 +679,12 @@ describe('gameReducer', () => {
         type: 'PLAY_HEADLINE',
       });
 
-      expect(newState.gameStatus).toBe('playing');
+      expect(newState.gameStatus).toBe(GameStatus.Playing);
     });
 
     it('should not change status if game is won', () => {
       const initialState = createMockGameState({
-        gameStatus: 'won',
+        gameStatus: GameStatus.Won,
         headlinesHeard: 3,
         currentHeadlineIndex: 2,
       });
@@ -692,7 +693,7 @@ describe('gameReducer', () => {
         type: 'PLAY_HEADLINE',
       });
 
-      expect(newState.gameStatus).toBe('won');
+      expect(newState.gameStatus).toBe(GameStatus.Won);
     });
   });
 
@@ -725,7 +726,7 @@ describe('gameReducer', () => {
       const initialState = createMockGameState({
         currentHeadlineIndex: 0,
         headlinesHeard: 1,
-        gameStatus: 'playing',
+        gameStatus: GameStatus.Playing,
       });
 
       const newState = gameReducer(initialState, {
@@ -733,28 +734,28 @@ describe('gameReducer', () => {
       });
 
       expect(newState.headlinesHeard).toBe(1);
-      expect(newState.gameStatus).toBe('playing');
+      expect(newState.gameStatus).toBe(GameStatus.Playing);
     });
   });
 
   describe('WIN_GAME', () => {
     it('should set game status to won', () => {
       const initialState = createMockGameState({
-        gameStatus: 'playing',
+        gameStatus: GameStatus.Playing,
       });
 
       const newState = gameReducer(initialState, {
         type: 'WIN_GAME',
       });
 
-      expect(newState.gameStatus).toBe('won');
+      expect(newState.gameStatus).toBe(GameStatus.Won);
     });
 
     it('should preserve all other state', () => {
       const initialState = createMockGameState({
-        gameStatus: 'playing',
+        gameStatus: GameStatus.Playing,
         headlinesHeard: 2,
-        currentRing: 'month',
+        currentRing: RingType.Month,
       });
 
       const newState = gameReducer(initialState, {
@@ -762,28 +763,28 @@ describe('gameReducer', () => {
       });
 
       expect(newState.headlinesHeard).toBe(2);
-      expect(newState.currentRing).toBe('month');
+      expect(newState.currentRing).toBe(RingType.Month);
     });
   });
 
   describe('LOSE_GAME', () => {
     it('should set game status to lost', () => {
       const initialState = createMockGameState({
-        gameStatus: 'playing',
+        gameStatus: GameStatus.Playing,
       });
 
       const newState = gameReducer(initialState, {
         type: 'LOSE_GAME',
       });
 
-      expect(newState.gameStatus).toBe('lost');
+      expect(newState.gameStatus).toBe(GameStatus.Lost);
     });
 
     it('should preserve all other state', () => {
       const initialState = createMockGameState({
-        gameStatus: 'playing',
+        gameStatus: GameStatus.Playing,
         headlinesHeard: 3,
-        currentRing: 'decade',
+        currentRing: RingType.Decade,
       });
 
       const newState = gameReducer(initialState, {
@@ -791,16 +792,16 @@ describe('gameReducer', () => {
       });
 
       expect(newState.headlinesHeard).toBe(3);
-      expect(newState.currentRing).toBe('decade');
+      expect(newState.currentRing).toBe(RingType.Decade);
     });
   });
 
   describe('RESET_GAME', () => {
     it('should replace entire state with new state', () => {
       const initialState = createMockGameState({
-        gameStatus: 'won',
+        gameStatus: GameStatus.Won,
         headlinesHeard: 3,
-        currentRing: 'month',
+        currentRing: RingType.Month,
       });
 
       const newGameState = createMockGameState({
@@ -820,7 +821,7 @@ describe('gameReducer', () => {
       expect(newState).toEqual(newGameState);
       expect(newState.dailyGameId).toBe('2025-01-02');
       expect(newState.correctAnswer.decade).toBe('2000s');
-      expect(newState.gameStatus).toBe('not_started');
+      expect(newState.gameStatus).toBe(GameStatus.NotStarted);
     });
   });
 
@@ -828,8 +829,8 @@ describe('gameReducer', () => {
     it('should handle unknown action type by returning same state', () => {
       const initialState = createMockGameState();
 
-      // @ts-expect-error Testing invalid action
       const newState = gameReducer(initialState, {
+        // @ts-expect-error Testing invalid action
         type: 'UNKNOWN_ACTION',
       });
 
@@ -838,14 +839,14 @@ describe('gameReducer', () => {
 
     it('should handle multiple incorrect guesses without exceeding 3 headlines', () => {
       const initialState = createMockGameState({
-        currentRing: 'decade',
+        currentRing: RingType.Decade,
         headlinesHeard: 2,
         currentHeadlineIndex: 1,
       });
 
       const stateAfterGuess1 = gameReducer(initialState, {
         type: 'SUBMIT_GUESS',
-        ringType: 'decade',
+        ringType: RingType.Decade,
         guessedValue: '1980s',
         isCorrect: false,
       });
@@ -855,7 +856,7 @@ describe('gameReducer', () => {
       // Try another incorrect guess - should trigger game loss
       const stateAfterGuess2 = gameReducer(stateAfterGuess1, {
         type: 'SUBMIT_GUESS',
-        ringType: 'decade',
+        ringType: RingType.Decade,
         guessedValue: '1970s',
         isCorrect: false,
       });
@@ -869,21 +870,21 @@ describe('gameReducer', () => {
       const state1 = createMockGameState({ headlinesHeard: 1 });
       const afterDecade1 = gameReducer(state1, {
         type: 'SUBMIT_GUESS',
-        ringType: 'decade',
+        ringType: RingType.Decade,
         guessedValue: '1990s',
         isCorrect: true,
       });
-      expect(afterDecade1.ringStates.decade.color).toBe('gold');
+      expect(afterDecade1.ringStates.decade.color).toBe(RingColor.Gold);
 
       // Win on third headline
       const state3 = createMockGameState({ headlinesHeard: 3 });
       const afterDecade3 = gameReducer(state3, {
         type: 'SUBMIT_GUESS',
-        ringType: 'decade',
+        ringType: RingType.Decade,
         guessedValue: '1990s',
         isCorrect: true,
       });
-      expect(afterDecade3.ringStates.decade.color).toBe('bronze');
+      expect(afterDecade3.ringStates.decade.color).toBe(RingColor.Bronze);
     });
   });
 });
