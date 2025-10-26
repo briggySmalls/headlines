@@ -18,6 +18,7 @@ export const RingColor = {
   Gold: 'gold',
   Silver: 'silver',
   Bronze: 'bronze',
+  Red: 'red',
 } as const;
 
 export type RingColor = typeof RingColor[keyof typeof RingColor];

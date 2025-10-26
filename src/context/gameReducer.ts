@@ -103,16 +103,26 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
               ...state.ringStates.decade,
               isLocked: true,
               rotationAngle: decadeRotation,
+              // If ring was never completed (color is None), turn it red
+              color: state.ringStates.decade.color === RingColor.None
+                ? RingColor.Red
+                : state.ringStates.decade.color,
             },
             year: {
               ...state.ringStates.year,
               isLocked: true,
               rotationAngle: yearRotation,
+              color: state.ringStates.year.color === RingColor.None
+                ? RingColor.Red
+                : state.ringStates.year.color,
             },
             month: {
               ...state.ringStates.month,
               isLocked: true,
               rotationAngle: monthRotation,
+              color: state.ringStates.month.color === RingColor.None
+                ? RingColor.Red
+                : state.ringStates.month.color,
             },
           };
 

@@ -211,6 +211,8 @@ function getRingColor(color: RingColor, isLocked: boolean): string {
       return '#C0C0C0';
     case 'bronze':
       return '#CD7F32';
+    case 'red':
+      return '#ef4444'; // red-500
     default:
       return '#94a3b8';
   }
