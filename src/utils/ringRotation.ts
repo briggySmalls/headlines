@@ -28,3 +28,33 @@ export function calculateRotationToAlignAnswer(
   // Segments are offset by half a segment, and we rotate clockwise (negative)
   return -(answerIndex * anglePerSegment);
 }
+
+/**
+ * Determines which segment is currently at the top (12 o'clock position)
+ * @param rotation - Current rotation angle in degrees
+ * @param segmentCount - Total number of segments on the ring
+ * @returns Index of the segment at 12 o'clock (0-based)
+ */
+export function getSegmentAtTop(rotation: number, segmentCount: number): number {
+  const anglePerSegment = 360 / segmentCount;
+  // Invert rotation because clockwise rotation (positive) moves higher-indexed segments to the top
+  // Also account for the half-segment offset we use to center segments at 12 o'clock
+  const adjustedRotation = -rotation + anglePerSegment / 2;
+  const normalizedRotation = ((adjustedRotation % 360) + 360) % 360;
+  const segmentIndex = Math.floor(normalizedRotation / anglePerSegment);
+  return segmentIndex % segmentCount;
+}
+
+/**
+ * Snaps a rotation angle to the nearest segment boundary
+ * @param rotation - Current rotation angle in degrees
+ * @param segmentCount - Total number of segments on the ring
+ * @returns Snapped rotation angle (preserves rotations beyond ±360°)
+ */
+export function snapToSegment(rotation: number, segmentCount: number): number {
+  const anglePerSegment = 360 / segmentCount;
+  // Find the nearest segment without normalizing to 0-360
+  // This preserves rotations beyond ±360 degrees
+  const nearestSegment = Math.round(rotation / anglePerSegment);
+  return nearestSegment * anglePerSegment;
+}
