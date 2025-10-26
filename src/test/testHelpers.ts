@@ -1,4 +1,4 @@
-import { GameState, RingState, RingColor } from '../types/game';
+import { GameState, RingState, RingColor, RingType, GameStatus } from '../types/game';
 
 /**
  * Creates a mock RingState with default values
@@ -8,7 +8,7 @@ export function createRingState(overrides?: Partial<RingState>): RingState {
   return {
     rotationAngle: 0,
     isLocked: false,
-    color: 'none',
+    color: RingColor.None,
     selectedValue: '',
     showIncorrectFlash: false,
     incorrectGuesses: [],
@@ -32,7 +32,7 @@ export function createMockGameState(
     },
     audioFiles: ['/audio1.mp3', '/audio2.mp3', '/audio3.mp3'],
     radioStation: 'Radio 4',
-    currentRing: 'decade',
+    currentRing: RingType.Decade,
     headlinesHeard: 0,
     currentHeadlineIndex: 0,
     ringStates: {
@@ -40,7 +40,7 @@ export function createMockGameState(
       year: createRingState({ selectedValue: '1940' }),
       month: createRingState({ selectedValue: 'Jan' }),
     },
-    gameStatus: 'not_started',
+    gameStatus: GameStatus.NotStarted,
     ...overrides,
   };
 }
@@ -49,10 +49,10 @@ export function createMockGameState(
  * Creates a game state where the decade has already been correctly guessed
  */
 export function createStateWithDecadeLocked(
-  color: RingColor = 'gold'
+  color: RingColor = RingColor.Gold
 ): GameState {
   return createMockGameState({
-    currentRing: 'year',
+    currentRing: RingType.Year,
     headlinesHeard: 1,
     ringStates: {
       decade: createRingState({
@@ -63,7 +63,7 @@ export function createStateWithDecadeLocked(
       year: createRingState({ selectedValue: '1940' }),
       month: createRingState({ selectedValue: 'Jan' }),
     },
-    gameStatus: 'playing',
+    gameStatus: GameStatus.Playing,
   });
 }
 
@@ -71,11 +71,11 @@ export function createStateWithDecadeLocked(
  * Creates a game state where decade and year have been correctly guessed
  */
 export function createStateWithYearLocked(
-  decadeColor: RingColor = 'gold',
-  yearColor: RingColor = 'silver'
+  decadeColor: RingColor = RingColor.Gold,
+  yearColor: RingColor = RingColor.Silver
 ): GameState {
   return createMockGameState({
-    currentRing: 'month',
+    currentRing: RingType.Month,
     headlinesHeard: 2,
     ringStates: {
       decade: createRingState({
@@ -90,7 +90,7 @@ export function createStateWithYearLocked(
       }),
       month: createRingState({ selectedValue: 'Jan' }),
     },
-    gameStatus: 'playing',
+    gameStatus: GameStatus.Playing,
   });
 }
 
@@ -100,7 +100,7 @@ export function createStateWithYearLocked(
  */
 export function createStateWithThreeHeadlinesHeard(): GameState {
   return createMockGameState({
-    currentRing: 'decade',
+    currentRing: RingType.Decade,
     headlinesHeard: 3,
     currentHeadlineIndex: 2,
     ringStates: {
@@ -111,6 +111,6 @@ export function createStateWithThreeHeadlinesHeard(): GameState {
       year: createRingState({ selectedValue: '1940' }),
       month: createRingState({ selectedValue: 'Jan' }),
     },
-    gameStatus: 'playing',
+    gameStatus: GameStatus.Playing,
   });
 }

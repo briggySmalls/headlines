@@ -1,8 +1,26 @@
-export type RingType = 'decade' | 'year' | 'month';
+// Enums for state machine values
+export enum RingType {
+  Decade = 'decade',
+  Year = 'year',
+  Month = 'month',
+}
 
-export type GameStatus = 'not_started' | 'playing' | 'won' | 'lost';
+export enum GameStatus {
+  NotStarted = 'not_started',
+  Playing = 'playing',
+  Won = 'won',
+  Lost = 'lost',
+}
 
-export type RingColor = 'none' | 'gold' | 'silver' | 'bronze';
+// Const object for color configuration values
+export const RingColor = {
+  None: 'none',
+  Gold: 'gold',
+  Silver: 'silver',
+  Bronze: 'bronze',
+} as const;
+
+export type RingColor = typeof RingColor[keyof typeof RingColor];
 
 export interface RingState {
   rotationAngle: number; // degrees from 0

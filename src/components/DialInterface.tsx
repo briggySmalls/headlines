@@ -6,7 +6,7 @@ import { useAudioPlayer } from '../hooks/useAudioPlayer';
 import { useMultiAudioPlayer } from '../hooks/useMultiAudioPlayer';
 import { ringConfig } from '../data/ringConfig';
 import { motion } from 'framer-motion';
-import { RingType } from '../types/game';
+import { RingType, GameStatus } from '../types/game';
 import { DIAL_DIMENSIONS, getRingRadius } from '../config/dialDimensions';
 
 export function DialInterface() {
@@ -19,7 +19,7 @@ export function DialInterface() {
   // Get current values for each ring
   const decadeValue = state.ringStates.decade.selectedValue;
   // When game is over, show years for the correct decade, otherwise show for selected decade
-  const decadeToUse = state.gameStatus === 'lost' || state.gameStatus === 'won'
+  const decadeToUse = state.gameStatus === GameStatus.Lost || state.gameStatus === GameStatus.Won
     ? state.correctAnswer.decade
     : decadeValue;
   const yearsForDecade = ringConfig.getYearsForDecade(decadeToUse);
@@ -28,9 +28,9 @@ export function DialInterface() {
   const getRotationToAlignAnswer = useCallback(
     (ringType: RingType, correctAnswer: string) => {
       const segments =
-        ringType === 'decade'
+        ringType === RingType.Decade
           ? ringConfig.decades
-          : ringType === 'year'
+          : ringType === RingType.Year
             ? ringConfig.getYearsForDecade(state.correctAnswer.decade)
             : ringConfig.months;
 
@@ -47,23 +47,23 @@ export function DialInterface() {
 
   // Animate rings to show correct answers when game is lost
   useEffect(() => {
-    if (state.gameStatus === 'lost') {
+    if (state.gameStatus === GameStatus.Lost) {
       // Wait a brief moment for the flash animation to complete
       setTimeout(() => {
         dispatch({
           type: 'ROTATE_RING_FORCE',
-          ringType: 'decade',
-          angle: getRotationToAlignAnswer('decade', state.correctAnswer.decade),
+          ringType: RingType.Decade,
+          angle: getRotationToAlignAnswer(RingType.Decade, state.correctAnswer.decade),
         });
         dispatch({
           type: 'ROTATE_RING_FORCE',
-          ringType: 'year',
-          angle: getRotationToAlignAnswer('year', state.correctAnswer.year),
+          ringType: RingType.Year,
+          angle: getRotationToAlignAnswer(RingType.Year, state.correctAnswer.year),
         });
         dispatch({
           type: 'ROTATE_RING_FORCE',
-          ringType: 'month',
-          angle: getRotationToAlignAnswer('month', state.correctAnswer.month),
+          ringType: RingType.Month,
+          angle: getRotationToAlignAnswer(RingType.Month, state.correctAnswer.month),
         });
       }, 500);
     }
@@ -75,7 +75,7 @@ export function DialInterface() {
   const singlePlayer = useAudioPlayer(currentAudioSrc);
 
   // Use appropriate player based on game status
-  const isGameOver = state.gameStatus === 'won' || state.gameStatus === 'lost';
+  const isGameOver = state.gameStatus === GameStatus.Won || state.gameStatus === GameStatus.Lost;
 
   // Multi-track player for game over (plays all 3 consecutively) - only enabled when game is over
   const multiPlayer = useMultiAudioPlayer([...state.audioFiles], isGameOver);
@@ -176,9 +176,9 @@ export function DialInterface() {
     const currentRing = state.currentRing;
     const currentRotation = state.ringStates[currentRing].rotationAngle;
     const segments =
-      currentRing === 'decade'
+      currentRing === RingType.Decade
         ? ringConfig.decades
-        : currentRing === 'year'
+        : currentRing === RingType.Year
           ? yearsForDecade
           : ringConfig.months;
     const segmentCount = segments.length;
@@ -295,9 +295,9 @@ export function DialInterface() {
           transition={{ type: 'spring', stiffness: 300, damping: 30 }}
         >
           <Ring
-            ringType="decade"
+            ringType={RingType.Decade}
             segments={ringConfig.decades}
-            radius={getRingRadius('decade')}
+            radius={getRingRadius(RingType.Decade)}
             strokeWidth={DIAL_DIMENSIONS.ringStrokeWidth}
             rotation={0}
             isLocked={state.ringStates.decade.isLocked}
@@ -306,7 +306,7 @@ export function DialInterface() {
             showIncorrectFlash={state.ringStates.decade.showIncorrectFlash}
             incorrectGuesses={state.ringStates.decade.incorrectGuesses}
             correctAnswer={state.correctAnswer.decade}
-            onFlashComplete={() => handleFlashComplete('decade')}
+            onFlashComplete={() => handleFlashComplete(RingType.Decade)}
           />
         </motion.g>
 
@@ -316,9 +316,9 @@ export function DialInterface() {
           transition={{ type: 'spring', stiffness: 300, damping: 30 }}
         >
           <Ring
-            ringType="year"
+            ringType={RingType.Year}
             segments={yearsForDecade}
-            radius={getRingRadius('year')}
+            radius={getRingRadius(RingType.Year)}
             strokeWidth={DIAL_DIMENSIONS.ringStrokeWidth}
             rotation={0}
             isLocked={state.ringStates.year.isLocked}
@@ -327,7 +327,7 @@ export function DialInterface() {
             showIncorrectFlash={state.ringStates.year.showIncorrectFlash}
             incorrectGuesses={state.ringStates.year.incorrectGuesses}
             correctAnswer={state.correctAnswer.year}
-            onFlashComplete={() => handleFlashComplete('year')}
+            onFlashComplete={() => handleFlashComplete(RingType.Year)}
           />
         </motion.g>
 
@@ -337,9 +337,9 @@ export function DialInterface() {
           transition={{ type: 'spring', stiffness: 300, damping: 30 }}
         >
           <Ring
-            ringType="month"
+            ringType={RingType.Month}
             segments={ringConfig.months}
-            radius={getRingRadius('month')}
+            radius={getRingRadius(RingType.Month)}
             strokeWidth={DIAL_DIMENSIONS.ringStrokeWidth}
             rotation={0}
             isLocked={state.ringStates.month.isLocked}
@@ -348,7 +348,7 @@ export function DialInterface() {
             showIncorrectFlash={state.ringStates.month.showIncorrectFlash}
             incorrectGuesses={state.ringStates.month.incorrectGuesses}
             correctAnswer={state.correctAnswer.month}
-            onFlashComplete={() => handleFlashComplete('month')}
+            onFlashComplete={() => handleFlashComplete(RingType.Month)}
           />
         </motion.g>
 
@@ -394,7 +394,7 @@ export function DialInterface() {
       </div>
 
       {/* Submit Button - outside SVG, below the dial */}
-      {state.gameStatus !== 'won' && state.gameStatus !== 'lost' && (
+      {state.gameStatus !== GameStatus.Won && state.gameStatus !== GameStatus.Lost && (
         <button
           onClick={handleSubmitGuess}
           disabled={state.headlinesHeard === state.currentHeadlineIndex}
