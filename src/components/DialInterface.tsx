@@ -1,6 +1,7 @@
 import { useState, useRef, useCallback } from 'react';
 import { Ring } from './Ring';
 import { PlayButton } from './PlayButton';
+import { LivesIndicator } from './LivesIndicator';
 import { useGame } from '../hooks/useGame';
 import { useAudioPlayer } from '../hooks/useAudioPlayer';
 import { useMultiAudioPlayer } from '../hooks/useMultiAudioPlayer';
@@ -322,6 +323,11 @@ export function DialInterface() {
 
       </svg>
       </div>
+
+      {/* Lives Indicator - shows mistakes made */}
+      {state.gameStatus !== GameStatus.Won && state.gameStatus !== GameStatus.Lost && (
+        <LivesIndicator mistakesMade={state.currentHeadlineIndex} />
+      )}
 
       {/* Submit Button - outside SVG, below the dial */}
       {state.gameStatus !== GameStatus.Won && state.gameStatus !== GameStatus.Lost && (
