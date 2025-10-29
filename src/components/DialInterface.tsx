@@ -204,7 +204,7 @@ export function DialInterface() {
   }, [isPlaying, play, state.headlinesHeard, state.currentHeadlineIndex, dispatch, isGameOver, multiPlayer]);
 
   return (
-    <div className="relative w-full max-w-md touch-none select-none flex flex-col items-center" style={{ gap: '2rem' }}>
+    <div className="relative w-full max-w-[500px] touch-none select-none flex flex-col items-center" style={{ gap: '2rem' }}>
       <div className="w-full aspect-square">
         <svg
           ref={svgRef}
