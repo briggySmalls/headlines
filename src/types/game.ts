@@ -60,7 +60,7 @@ export interface DailyGame {
   answer: {
     decade: string; // e.g., "1990s"
     year: string; // e.g., "1995"
-    month: string; // e.g., "Aug"
+    month: string; // e.g., "Jul-Sep"
   };
   headlines: [string, string, string]; // audio file paths
   radioStation: string; // e.g., "Radio 4"

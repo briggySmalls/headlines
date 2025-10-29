@@ -17,17 +17,9 @@ export const ringConfig: RingConfig = {
     return Array.from({ length: 10 }, (_, i) => (startYear + i).toString());
   },
   months: [
-    'Jan',
-    'Feb',
-    'Mar',
-    'Apr',
-    'May',
-    'Jun',
-    'Jul',
-    'Aug',
-    'Sep',
-    'Oct',
-    'Nov',
-    'Dec',
+    'Jan-Mar',
+    'Apr-Jun',
+    'Jul-Sep',
+    'Oct-Dec',
   ],
 };

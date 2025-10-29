@@ -103,7 +103,7 @@ describe('gameReducer', () => {
         ringStates: {
           decade: createRingState({ selectedValue: '1940s' }),
           year: createRingState({ selectedValue: '1940' }),
-          month: createRingState({ selectedValue: 'Jan' }),
+          month: createRingState({ selectedValue: 'Jan-Mar' }),
         },
       });
 
@@ -115,7 +115,7 @@ describe('gameReducer', () => {
 
       expect(newState.ringStates.decade.selectedValue).toBe('1940s');
       expect(newState.ringStates.year.selectedValue).toBe('1995');
-      expect(newState.ringStates.month.selectedValue).toBe('Jan');
+      expect(newState.ringStates.month.selectedValue).toBe('Jan-Mar');
     });
   });
 
@@ -229,7 +229,7 @@ describe('gameReducer', () => {
       const newState = gameReducer(initialState, {
         type: 'SUBMIT_GUESS',
         ringType: RingType.Month,
-        guessedValue: 'Aug',
+        guessedValue: 'Jul-Sep',
         isCorrect: true,
       });
 
@@ -398,8 +398,8 @@ describe('gameReducer', () => {
       expect(newState.ringStates.decade.rotationAngle).toBe(-200);
       // Year: '1995' is at index 5, anglePerSegment = 360/10 = 36°, rotation = -(5 * 36) = -180°
       expect(newState.ringStates.year.rotationAngle).toBe(-180);
-      // Month: 'Aug' is at index 7, anglePerSegment = 360/12 = 30°, rotation = -(7 * 30) = -210°
-      expect(newState.ringStates.month.rotationAngle).toBe(-210);
+      // Month: 'Jul-Sep' is at index 2, anglePerSegment = 360/4 = 90°, rotation = -(2 * 90) = -180°
+      expect(newState.ringStates.month.rotationAngle).toBe(-180);
 
       // Uncompleted rings should turn red (decade was never guessed so color is None)
       expect(newState.ringStates.decade.color).toBe(RingColor.Red);
@@ -470,11 +470,11 @@ describe('gameReducer', () => {
       const newState = gameReducer(initialState, {
         type: 'SUBMIT_GUESS',
         ringType: RingType.Month,
-        guessedValue: 'Jul',
+        guessedValue: 'Oct-Dec',
         isCorrect: false,
       });
 
-      expect(newState.ringStates.month.incorrectGuesses).toContain('Jul');
+      expect(newState.ringStates.month.incorrectGuesses).toContain('Oct-Dec');
       expect(newState.ringStates.month.showIncorrectFlash).toBe(true);
       expect(newState.headlinesHeard).toBe(3);
     });
@@ -800,7 +800,7 @@ describe('gameReducer', () => {
         correctAnswer: {
           decade: '2000s',
           year: '2005',
-          month: 'Dec',
+          month: 'Oct-Dec',
         },
       });
 

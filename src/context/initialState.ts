@@ -33,7 +33,7 @@ export function createInitialState(dailyGame: DailyGame): GameState {
         rotationAngle: 0,
         isLocked: false,
         color: RingColor.None,
-        selectedValue: 'Jan', // segment 0 at 12 o'clock
+        selectedValue: 'Jan-Mar', // segment 0 at 12 o'clock
         showIncorrectFlash: false,
         incorrectGuesses: [],
       },

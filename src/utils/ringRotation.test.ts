@@ -97,44 +97,44 @@ describe('calculateRotationToAlignAnswer', () => {
   });
 
   describe('Month ring', () => {
-    it('should return -0 for January (first month)', () => {
+    it('should return -0 for Jan-Mar (first quarter)', () => {
       const rotation = calculateRotationToAlignAnswer(
         RingType.Month,
-        'Jan',
+        'Jan-Mar',
         '1990s'
       );
       expect(rotation).toBe(-0);
     });
 
-    it('should return -30 for February (second month)', () => {
+    it('should return -90 for Apr-Jun (second quarter)', () => {
       const rotation = calculateRotationToAlignAnswer(
         RingType.Month,
-        'Feb',
+        'Apr-Jun',
         '1990s'
       );
-      // 12 months total, anglePerSegment = 360/12 = 30°
-      // Index 1, rotation = -(1 * 30) = -30°
-      expect(rotation).toBe(-30);
+      // 4 quarters total, anglePerSegment = 360/4 = 90°
+      // Index 1, rotation = -(1 * 90) = -90°
+      expect(rotation).toBe(-90);
     });
 
-    it('should return -210 for August (index 7)', () => {
+    it('should return -180 for Jul-Sep (third quarter)', () => {
       const rotation = calculateRotationToAlignAnswer(
         RingType.Month,
-        'Aug',
+        'Jul-Sep',
         '1990s'
       );
-      // Index 7, rotation = -(7 * 30) = -210°
-      expect(rotation).toBe(-210);
+      // Index 2, rotation = -(2 * 90) = -180°
+      expect(rotation).toBe(-180);
     });
 
-    it('should return -330 for December (last month)', () => {
+    it('should return -270 for Oct-Dec (last quarter)', () => {
       const rotation = calculateRotationToAlignAnswer(
         RingType.Month,
-        'Dec',
+        'Oct-Dec',
         '1990s'
       );
-      // Index 11, rotation = -(11 * 30) = -330°
-      expect(rotation).toBe(-330);
+      // Index 3, rotation = -(3 * 90) = -270°
+      expect(rotation).toBe(-270);
     });
 
     it('should return 0 for non-existent month', () => {
