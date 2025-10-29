@@ -28,7 +28,7 @@ export function createMockGameState(
     correctAnswer: {
       decade: '1990s',
       year: '1995',
-      month: 'Aug',
+      month: 'Jul-Sep',
     },
     audioFiles: ['/audio1.mp3', '/audio2.mp3', '/audio3.mp3'],
     radioStation: 'Radio 4',
@@ -38,7 +38,7 @@ export function createMockGameState(
     ringStates: {
       decade: createRingState({ selectedValue: '1940s' }),
       year: createRingState({ selectedValue: '1940' }),
-      month: createRingState({ selectedValue: 'Jan' }),
+      month: createRingState({ selectedValue: 'Jan-Mar' }),
     },
     gameStatus: GameStatus.NotStarted,
     ...overrides,
@@ -61,7 +61,7 @@ export function createStateWithDecadeLocked(
         color,
       }),
       year: createRingState({ selectedValue: '1940' }),
-      month: createRingState({ selectedValue: 'Jan' }),
+      month: createRingState({ selectedValue: 'Jan-Mar' }),
     },
     gameStatus: GameStatus.Playing,
   });
@@ -109,7 +109,7 @@ export function createStateWithThreeHeadlinesHeard(): GameState {
         incorrectGuesses: ['1950s', '1960s'],
       }),
       year: createRingState({ selectedValue: '1940' }),
-      month: createRingState({ selectedValue: 'Jan' }),
+      month: createRingState({ selectedValue: 'Jan-Mar' }),
     },
     gameStatus: GameStatus.Playing,
   });

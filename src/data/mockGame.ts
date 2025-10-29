@@ -5,7 +5,7 @@ export const mockGame: DailyGame = {
   answer: {
     decade: '1990s',
     year: '1995',
-    month: 'Aug',
+    month: 'Jul-Sep',
   },
   headlines: [
     '/assets/headlines/1995-08/1995-08_1.mp3',
