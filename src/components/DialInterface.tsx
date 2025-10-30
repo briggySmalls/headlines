@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback, useMemo } from 'react';
+import { useState, useRef, useCallback, useMemo, useEffect } from 'react';
 import { Ring } from './Ring';
 import { PlayButton } from './PlayButton';
 import { LivesIndicator } from './LivesIndicator';
@@ -12,7 +12,11 @@ import { RingType, GameStatus } from '../types/game';
 import { DIAL_DIMENSIONS, getRingRadius } from '../config/dialDimensions';
 import { getSegmentAtTop, snapToSegment, calculateRotationFromValue } from '../utils/ringRotation';
 
-export function DialInterface() {
+interface DialInterfaceProps {
+  onAudioStateChange?: (isPlaying: boolean, duration: number, currentTrackIndex: number, currentTrackDuration?: number) => void;
+}
+
+export function DialInterface({ onAudioStateChange }: DialInterfaceProps = {}) {
   const { state, dispatch } = useGame();
   const svgRef = useRef<SVGSVGElement>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -90,6 +94,17 @@ export function DialInterface() {
   const multiPlayer = useMultiAudioPlayer(state.audioFiles, isGameOver);
 
   const { play, isPlaying, duration } = isGameOver ? multiPlayer : singlePlayer;
+  const currentTrackIndex = isGameOver ? multiPlayer.currentTrackIndex : 0;
+  const currentTrackDuration = isGameOver && multiPlayer.trackDurations[currentTrackIndex]
+    ? multiPlayer.trackDurations[currentTrackIndex]
+    : undefined;
+
+  // Notify parent of audio state changes
+  useEffect(() => {
+    if (onAudioStateChange) {
+      onAudioStateChange(isPlaying, duration, currentTrackIndex, currentTrackDuration);
+    }
+  }, [isPlaying, duration, currentTrackIndex, currentTrackDuration, onAudioStateChange]);
 
   const getCenterPoint = useCallback(() => {
     if (!svgRef.current) return { x: 0, y: 0 };

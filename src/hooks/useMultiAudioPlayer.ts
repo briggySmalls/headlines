@@ -125,5 +125,5 @@ export function useMultiAudioPlayer(srcs: string[], enabled: boolean = true) {
     audioRef.current?.pause();
   }, []);
 
-  return { play, playAll, pause, isPlaying, duration, currentTrackIndex };
+  return { play, playAll, pause, isPlaying, duration, currentTrackIndex, trackDurations };
 }
