@@ -117,6 +117,74 @@ describe('gameReducer', () => {
       expect(newState.ringStates.year.selectedValue).toBe('1995');
       expect(newState.ringStates.month.selectedValue).toBe('Jan-Mar');
     });
+
+    it('should update year ring selectedValue when decade ring changes', () => {
+      const initialState = createMockGameState({
+        ringStates: {
+          decade: createRingState({ selectedValue: '1940s' }),
+          year: createRingState({
+            selectedValue: '1940',
+            rotationAngle: 0, // Pointing at segment 0
+          }),
+          month: createRingState(),
+        },
+      });
+
+      const newState = gameReducer(initialState, {
+        type: 'SET_RING_VALUE',
+        ringType: RingType.Decade,
+        value: '1990s',
+      });
+
+      expect(newState.ringStates.decade.selectedValue).toBe('1990s');
+      // Year ring at rotation 0 (segment 0) should now show first year of 1990s
+      expect(newState.ringStates.year.selectedValue).toBe('1990');
+    });
+
+    it('should update year ring selectedValue based on rotation when decade changes', () => {
+      const initialState = createMockGameState({
+        ringStates: {
+          decade: createRingState({ selectedValue: '1940s' }),
+          year: createRingState({
+            selectedValue: '1943',
+            rotationAngle: -108, // Segment 3 (108° = 3 * 36°)
+          }),
+          month: createRingState(),
+        },
+      });
+
+      const newState = gameReducer(initialState, {
+        type: 'SET_RING_VALUE',
+        ringType: RingType.Decade,
+        value: '2010s',
+      });
+
+      expect(newState.ringStates.decade.selectedValue).toBe('2010s');
+      // Year ring at segment 3 should show 2013 (2010 + 3)
+      expect(newState.ringStates.year.selectedValue).toBe('2013');
+    });
+
+    it('should not update year ring if it is locked', () => {
+      const initialState = createMockGameState({
+        ringStates: {
+          decade: createRingState({ selectedValue: '1940s' }),
+          year: createRingState({
+            selectedValue: '1995',
+            isLocked: true,
+          }),
+          month: createRingState(),
+        },
+      });
+
+      const newState = gameReducer(initialState, {
+        type: 'SET_RING_VALUE',
+        ringType: RingType.Decade,
+        value: '2010s',
+      });
+
+      // Year ring should remain unchanged because it's locked
+      expect(newState.ringStates.year.selectedValue).toBe('1995');
+    });
   });
 
   describe('SUBMIT_GUESS - Correct', () => {
@@ -192,7 +260,7 @@ describe('gameReducer', () => {
         headlinesHeard: 1,
         ringStates: {
           decade: createRingState({ selectedValue: '1990s' }),
-          year: createRingState(),
+          year: createRingState({ selectedValue: '1940' }), // Initial default from 1940s
           month: createRingState(),
         },
       });
@@ -206,6 +274,30 @@ describe('gameReducer', () => {
 
       expect(newState.currentRing).toBe(RingType.Year);
       expect(newState.gameStatus).toBe(GameStatus.NotStarted); // Still not won
+      // Year ring's selectedValue should update to first year of the decade (since rotation is at 0)
+      expect(newState.ringStates.year.selectedValue).toBe('1990');
+    });
+
+    it('should update year ring selectedValue when advancing from different decades', () => {
+      const initialState = createMockGameState({
+        currentRing: RingType.Decade,
+        headlinesHeard: 2,
+        ringStates: {
+          decade: createRingState({ selectedValue: '2010s' }),
+          year: createRingState({ selectedValue: '1940' }), // Initial default
+          month: createRingState(),
+        },
+      });
+
+      const newState = gameReducer(initialState, {
+        type: 'SUBMIT_GUESS',
+        ringType: RingType.Decade,
+        guessedValue: '2010s',
+        isCorrect: true,
+      });
+
+      expect(newState.currentRing).toBe(RingType.Year);
+      expect(newState.ringStates.year.selectedValue).toBe('2010');
     });
 
     it('should advance from year to month ring', () => {

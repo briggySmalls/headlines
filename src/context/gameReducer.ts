@@ -1,5 +1,5 @@
 import { GameState, RingType, GameStatus, RingColor } from '../types/game';
-import { calculateRotationToAlignAnswer } from '../utils/ringRotation';
+import { calculateRotationToAlignAnswer, getSegmentAtTop } from '../utils/ringRotation';
 
 export type GameAction =
   | { type: 'ROTATE_RING'; ringType: RingType; angle: number }
@@ -40,15 +40,33 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       if (state.ringStates[action.ringType].isLocked) {
         return state;
       }
+
+      let updatedRingStates = {
+        ...state.ringStates,
+        [action.ringType]: {
+          ...state.ringStates[action.ringType],
+          selectedValue: action.value,
+        },
+      };
+
+      // When decade ring changes, update year ring's selectedValue to match its current rotation
+      // This keeps the year ring consistent with the new decade's year range
+      if (action.ringType === RingType.Decade && !state.ringStates.year.isLocked) {
+        const startYear = parseInt(action.value.slice(0, 4));
+        const yearRotation = state.ringStates.year.rotationAngle;
+        const segmentIndex = getSegmentAtTop(yearRotation, 10); // 10 years per decade
+        updatedRingStates = {
+          ...updatedRingStates,
+          [RingType.Year]: {
+            ...updatedRingStates[RingType.Year],
+            selectedValue: (startYear + segmentIndex).toString(),
+          },
+        };
+      }
+
       return {
         ...state,
-        ringStates: {
-          ...state.ringStates,
-          [action.ringType]: {
-            ...state.ringStates[action.ringType],
-            selectedValue: action.value,
-          },
-        },
+        ringStates: updatedRingStates,
       };
     }
 
@@ -60,16 +78,33 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         const color = getColorForHeadlines(state.headlinesHeard);
         const nextRing = getNextRing(ringType);
 
+        let updatedRingStates = {
+          ...state.ringStates,
+          [ringType]: {
+            ...state.ringStates[ringType],
+            isLocked: true,
+            color,
+          },
+        };
+
+        // When decade is guessed correctly, ensure year ring's selectedValue is up to date
+        // This handles the case where the decade was submitted without being rotated first
+        if (ringType === RingType.Decade && nextRing === RingType.Year) {
+          const startYear = parseInt(action.guessedValue.slice(0, 4));
+          const yearRotation = state.ringStates.year.rotationAngle;
+          const segmentIndex = getSegmentAtTop(yearRotation, 10);
+          updatedRingStates = {
+            ...updatedRingStates,
+            [RingType.Year]: {
+              ...updatedRingStates[RingType.Year],
+              selectedValue: (startYear + segmentIndex).toString(),
+            },
+          };
+        }
+
         return {
           ...state,
-          ringStates: {
-            ...state.ringStates,
-            [ringType]: {
-              ...state.ringStates[ringType],
-              isLocked: true,
-              color,
-            },
-          },
+          ringStates: updatedRingStates,
           currentRing: nextRing || ringType,
           gameStatus: nextRing ? state.gameStatus : GameStatus.Won,
         };

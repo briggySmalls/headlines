@@ -70,3 +70,41 @@ yarn lint
 ```
 
 Note: These commands assume standard Create React App or Vite setup patterns. Update this section once the project structure is established.
+
+## Architecture Notes
+
+### Potential Refactoring: Ring State Redundancy
+
+**Current Implementation:**
+The ring state stores both `rotationAngle` and `selectedValue`, which creates redundancy:
+- `rotationAngle`: The visual rotation of the ring (in degrees)
+- `selectedValue`: The value currently selected (shown at 12 o'clock position)
+
+**The Issue:**
+These two values are interdependent but stored separately, which can lead to inconsistencies:
+- When the decade ring changes, the year ring's segments update dynamically, but `selectedValue` must be manually updated to stay in sync
+- We maintain synchronization in multiple places (`SET_RING_VALUE` action and `SUBMIT_GUESS` action)
+
+**Refactoring Options:**
+
+**Option A: Derive `rotationAngle` from `selectedValue`** (Recommended)
+- Store only `selectedValue` in state
+- Calculate `rotationAngle` based on the index of `selectedValue` in the segments array
+- **Pros**: More intuitive - user selects a value, rotation is just visual representation
+- **Pros**: Single source of truth, impossible to get out of sync
+- **Cons**: Need to calculate rotation on every render (minimal performance impact)
+
+**Option B: Derive `selectedValue` from `rotationAngle`**
+- Store only `rotationAngle` in state
+- Calculate `selectedValue` based on which segment is at 12 o'clock
+- **Pros**: Single source of truth
+- **Cons**: Less intuitive - rotation angle is lower-level than the conceptual "selected value"
+- **Cons**: Requires access to segments array to calculate value
+
+**Implementation Considerations:**
+- Either refactoring would eliminate the need for reactive updates in `SET_RING_VALUE`
+- Would simplify the reducer and remove a class of potential bugs
+- Requires updates to: reducer, components, and all tests that directly set ring state
+
+**Current Status:**
+Reactive updates are in place as a pragmatic solution. The year ring's `selectedValue` automatically updates when the decade ring changes (see `gameReducer.ts` `SET_RING_VALUE` case).
