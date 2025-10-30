@@ -308,7 +308,7 @@ describe('gameReducer', () => {
       expect(newState.currentHeadlineIndex).toBe(1);
     });
 
-    it('should increment headlinesHeard', () => {
+    it('should not increment headlinesHeard (only PLAY_HEADLINE does that)', () => {
       const initialState = createMockGameState({
         currentRing: RingType.Decade,
         headlinesHeard: 1,
@@ -321,14 +321,14 @@ describe('gameReducer', () => {
         isCorrect: false,
       });
 
-      expect(newState.headlinesHeard).toBe(2);
+      expect(newState.headlinesHeard).toBe(1);
     });
 
-    it('should cap headlinesHeard at 3', () => {
+    it('should make headlinesHeard equal currentHeadlineIndex (enforcing submit disabled until audio played)', () => {
       const initialState = createMockGameState({
         currentRing: RingType.Decade,
-        headlinesHeard: 3,
-        currentHeadlineIndex: 2,
+        headlinesHeard: 1,
+        currentHeadlineIndex: 0,
       });
 
       const newState = gameReducer(initialState, {
@@ -338,7 +338,10 @@ describe('gameReducer', () => {
         isCorrect: false,
       });
 
-      expect(newState.headlinesHeard).toBe(3); // Doesn't exceed 3
+      // After incorrect guess, these should be equal (submit button disabled)
+      expect(newState.headlinesHeard).toBe(newState.currentHeadlineIndex);
+      expect(newState.headlinesHeard).toBe(1); // Stays at 1
+      expect(newState.currentHeadlineIndex).toBe(1); // Advanced to 1
     });
 
     it('should accumulate multiple incorrect guesses', () => {
@@ -461,7 +464,7 @@ describe('gameReducer', () => {
 
       expect(newState.ringStates.year.incorrectGuesses).toContain('1993');
       expect(newState.ringStates.year.showIncorrectFlash).toBe(true);
-      expect(newState.headlinesHeard).toBe(2);
+      expect(newState.headlinesHeard).toBe(1); // Stays at 1, doesn't increment
     });
 
     it('should work for incorrect guess on month ring', () => {
@@ -476,7 +479,7 @@ describe('gameReducer', () => {
 
       expect(newState.ringStates.month.incorrectGuesses).toContain('Oct-Dec');
       expect(newState.ringStates.month.showIncorrectFlash).toBe(true);
-      expect(newState.headlinesHeard).toBe(3);
+      expect(newState.headlinesHeard).toBe(2); // Stays at 2, doesn't increment
     });
   });
 
@@ -828,32 +831,23 @@ describe('gameReducer', () => {
       expect(newState).toBe(initialState);
     });
 
-    it('should handle multiple incorrect guesses without exceeding 3 headlines', () => {
+    it('should handle multiple incorrect guesses and game loss', () => {
       const initialState = createMockGameState({
         currentRing: RingType.Decade,
-        headlinesHeard: 2,
-        currentHeadlineIndex: 1,
+        headlinesHeard: 3,
+        currentHeadlineIndex: 2,
       });
 
-      const stateAfterGuess1 = gameReducer(initialState, {
+      // Try an incorrect guess when already at 3 headlines - should trigger game loss
+      const stateAfterGuess = gameReducer(initialState, {
         type: 'SUBMIT_GUESS',
         ringType: RingType.Decade,
         guessedValue: '1980s',
         isCorrect: false,
       });
 
-      expect(stateAfterGuess1.headlinesHeard).toBe(3);
-
-      // Try another incorrect guess - should trigger game loss
-      const stateAfterGuess2 = gameReducer(stateAfterGuess1, {
-        type: 'SUBMIT_GUESS',
-        ringType: RingType.Decade,
-        guessedValue: '1970s',
-        isCorrect: false,
-      });
-
-      expect(stateAfterGuess2.gameStatus).toBe('lost');
-      expect(stateAfterGuess2.headlinesHeard).toBe(3); // Still 3
+      expect(stateAfterGuess.gameStatus).toBe('lost');
+      expect(stateAfterGuess.headlinesHeard).toBe(3); // Still 3
     });
 
     it('should correctly handle winning on different headline counts', () => {

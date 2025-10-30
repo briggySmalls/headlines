@@ -77,7 +77,6 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         // Incorrect guess - show red flash, add to incorrect guesses, and progress to next headline
         const guessedValue = action.guessedValue;
         const newHeadlineIndex = state.currentHeadlineIndex + 1;
-        const newHeadlinesHeard = Math.min(state.headlinesHeard + 1, 3);
 
         // Check if game is lost (3 headlines heard and incorrect guess)
         if (state.headlinesHeard >= 3) {
@@ -157,7 +156,6 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
             },
           },
           currentHeadlineIndex: newHeadlineIndex,
-          headlinesHeard: newHeadlinesHeard,
         };
       }
     }
