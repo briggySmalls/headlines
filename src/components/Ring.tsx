@@ -1,6 +1,7 @@
 import { RingType, RingColor } from '../types/game';
 import { motion } from 'framer-motion';
 import { DIAL_DIMENSIONS } from '../config/dialDimensions';
+import { COLORS } from '../config/colors';
 
 interface RingProps {
   ringType: RingType;
@@ -41,7 +42,7 @@ export function Ring({
 
   // Get ring color
   const baseRingColor = getRingColor(color, isLocked);
-  const flashColor = '#ef4444'; // red-500
+  const flashColor = COLORS.status.error;
 
   // Unique filter IDs for this ring instance
   const blurFilterId = `blur-${ringType}`;
@@ -103,7 +104,7 @@ export function Ring({
                 strokeWidth
               )}
               fill={segmentColor}
-              stroke="#1e293b"
+              stroke={COLORS.background.dark}
               strokeWidth="2"
               animate={{
                 fill: showIncorrectFlash
@@ -201,7 +202,7 @@ function describeArc(
 
 export function getRingColor(color: RingColor, isLocked: boolean): string {
   if (!isLocked) {
-    return '#94a3b8'; // slate-400
+    return COLORS.background.disabled;
   }
 
   switch (color) {
@@ -212,9 +213,9 @@ export function getRingColor(color: RingColor, isLocked: boolean): string {
     case 'bronze':
       return '#CD7F32';
     case 'red':
-      return '#ef4444'; // red-500
+      return COLORS.status.error;
     default:
-      return '#94a3b8';
+      return COLORS.background.disabled;
   }
 }
 

@@ -1,3 +1,5 @@
+import { COLORS } from '../config/colors';
+
 interface LivesIndicatorProps {
   mistakesMade: number; // 0-3, represents how many incorrect guesses have been made
 }
@@ -21,8 +23,8 @@ export function LivesIndicator({ mistakesMade }: LivesIndicatorProps) {
             style={{
               width: '20px',
               height: '20px',
-              border: '2px solid #1e293b', // slate-800 dark border
-              backgroundColor: isLost ? '#1e293b' : '#f1f5f9', // dark when lost, light gray when available
+              border: `2px solid ${COLORS.background.dark}`,
+              backgroundColor: isLost ? COLORS.background.dark : COLORS.text.light,
               borderRadius: '2px',
               transition: 'background-color 0.3s ease',
             }}

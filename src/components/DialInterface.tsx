@@ -10,6 +10,7 @@ import { ringConfig } from '../data/ringConfig';
 import { motion } from 'framer-motion';
 import { RingType, GameStatus } from '../types/game';
 import { DIAL_DIMENSIONS, getRingRadius } from '../config/dialDimensions';
+import { COLORS } from '../config/colors';
 import { getSegmentAtTop, snapToSegment, calculateRotationFromValue } from '../utils/ringRotation';
 
 interface DialInterfaceProps {
@@ -464,13 +465,13 @@ export function DialInterface({ onAudioStateChange }: DialInterfaceProps = {}) {
           style={{
             // Match play button: solid dark background with light text
             backgroundColor: state.headlinesHeard === state.currentHeadlineIndex
-              ? '#94a3b8'  // slate-400 when disabled
-              : '#1e293b', // slate-800 when active (matches play button)
+              ? COLORS.background.disabled
+              : COLORS.background.dark,
             border: 'none',
             borderRadius: '0.75rem', // rounded-xl equivalent (12px)
             color: state.headlinesHeard === state.currentHeadlineIndex
-              ? '#64748b'  // slate-500 (darker text for contrast on gray bg)
-              : '#f1f5f9', // slate-100 (matches play button icon)
+              ? COLORS.text.disabled
+              : COLORS.text.light,
             cursor: state.headlinesHeard === state.currentHeadlineIndex ? 'not-allowed' : 'pointer',
             fontSize: '2rem',
             padding: '0.75rem 3rem', // Thinner than before

@@ -1,4 +1,5 @@
 import { DIAL_DIMENSIONS } from '../config/dialDimensions';
+import { COLORS } from '../config/colors';
 
 interface AnswerDisplayProps {
   year: string;
@@ -24,8 +25,8 @@ export function AnswerDisplay({
 
   return (
     <g>
-      {/* Background circle - using ring border color (#1e293b = slate-800) */}
-      <circle cx={centerX} cy={centerY} r={radius} fill="#1e293b" />
+      {/* Background circle - using ring border color */}
+      <circle cx={centerX} cy={centerY} r={radius} fill={COLORS.background.dark} />
 
       {/* Date text - first line */}
       <text
@@ -38,7 +39,7 @@ export function AnswerDisplay({
           fontSize: '14px',
           userSelect: 'none',
           WebkitUserSelect: 'none',
-          fill: '#f1f5f9', // slate-100 for light text
+          fill: COLORS.text.light,
         }}
       >
         {dateString}
@@ -55,7 +56,7 @@ export function AnswerDisplay({
           fontSize: '14px',
           userSelect: 'none',
           WebkitUserSelect: 'none',
-          fill: '#f1f5f9', // slate-100 for light text
+          fill: COLORS.text.light,
         }}
       >
         {radioStation}
