@@ -39,6 +39,7 @@ export interface GameState {
     month: string;
   };
   audioFiles: [string, string, string]; // paths to 3 headline audio files
+  transcripts: [string, string, string]; // headline transcripts
   radioStation: string; // e.g., "Radio 4"
 
   currentRing: RingType;
@@ -62,6 +63,7 @@ export interface DailyGame {
     month: string; // e.g., "Jul-Sep"
   };
   headlines: [string, string, string]; // audio file paths
+  transcripts: [string, string, string]; // headline transcripts
   radioStation: string; // e.g., "Radio 4"
 }
 

@@ -30,6 +30,7 @@ export function createMockGameState(
       month: 'Jul-Sep',
     },
     audioFiles: ['/audio1.mp3', '/audio2.mp3', '/audio3.mp3'],
+    transcripts: ['Headline 1', 'Headline 2', 'Headline 3'],
     radioStation: 'Radio 4',
     currentRing: RingType.Decade,
     headlinesHeard: 0,
