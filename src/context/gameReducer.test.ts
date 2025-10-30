@@ -10,59 +10,6 @@ import {
 } from '../test/testHelpers';
 
 describe('gameReducer', () => {
-  describe('ROTATE_RING', () => {
-    it('should update rotation angle for unlocked ring', () => {
-      const initialState = createMockGameState();
-
-      const newState = gameReducer(initialState, {
-        type: 'ROTATE_RING',
-        ringType: RingType.Decade,
-        angle: 45,
-      });
-
-      expect(newState.ringStates.decade.rotationAngle).toBe(45);
-    });
-
-    it('should not update rotation angle for locked ring', () => {
-      const initialState = createMockGameState({
-        ringStates: {
-          decade: createRingState({ isLocked: true, rotationAngle: 0 }),
-          year: createRingState(),
-          month: createRingState(),
-        },
-      });
-
-      const newState = gameReducer(initialState, {
-        type: 'ROTATE_RING',
-        ringType: RingType.Decade,
-        angle: 45,
-      });
-
-      expect(newState.ringStates.decade.rotationAngle).toBe(0);
-      expect(newState).toBe(initialState); // Should return same reference
-    });
-
-    it('should preserve other ring states', () => {
-      const initialState = createMockGameState({
-        ringStates: {
-          decade: createRingState({ rotationAngle: 10 }),
-          year: createRingState({ rotationAngle: 20 }),
-          month: createRingState({ rotationAngle: 30 }),
-        },
-      });
-
-      const newState = gameReducer(initialState, {
-        type: 'ROTATE_RING',
-        ringType: RingType.Year,
-        angle: 90,
-      });
-
-      expect(newState.ringStates.decade.rotationAngle).toBe(10);
-      expect(newState.ringStates.year.rotationAngle).toBe(90);
-      expect(newState.ringStates.month.rotationAngle).toBe(30);
-    });
-  });
-
   describe('SET_RING_VALUE', () => {
     it('should update selected value for unlocked ring', () => {
       const initialState = createMockGameState();
@@ -118,13 +65,12 @@ describe('gameReducer', () => {
       expect(newState.ringStates.month.selectedValue).toBe('Jan-Mar');
     });
 
-    it('should update year ring selectedValue when decade ring changes', () => {
+    it('should update year ring selectedValue when decade ring changes (offset 0)', () => {
       const initialState = createMockGameState({
         ringStates: {
           decade: createRingState({ selectedValue: '1940s' }),
           year: createRingState({
-            selectedValue: '1940',
-            rotationAngle: 0, // Pointing at segment 0
+            selectedValue: '1940', // Offset 0
           }),
           month: createRingState(),
         },
@@ -137,17 +83,16 @@ describe('gameReducer', () => {
       });
 
       expect(newState.ringStates.decade.selectedValue).toBe('1990s');
-      // Year ring at rotation 0 (segment 0) should now show first year of 1990s
+      // Year offset 0 should now show first year of 1990s
       expect(newState.ringStates.year.selectedValue).toBe('1990');
     });
 
-    it('should update year ring selectedValue based on rotation when decade changes', () => {
+    it('should update year ring selectedValue based on year offset when decade changes', () => {
       const initialState = createMockGameState({
         ringStates: {
           decade: createRingState({ selectedValue: '1940s' }),
           year: createRingState({
-            selectedValue: '1943',
-            rotationAngle: -108, // Segment 3 (108° = 3 * 36°)
+            selectedValue: '1943', // Offset 3
           }),
           month: createRingState(),
         },
@@ -160,7 +105,7 @@ describe('gameReducer', () => {
       });
 
       expect(newState.ringStates.decade.selectedValue).toBe('2010s');
-      // Year ring at segment 3 should show 2013 (2010 + 3)
+      // Year offset 3 should show 2013 (2010 + 3)
       expect(newState.ringStates.year.selectedValue).toBe('2013');
     });
 
@@ -473,7 +418,7 @@ describe('gameReducer', () => {
       expect(newState.gameStatus).toBe(GameStatus.Lost);
     });
 
-    it('should lock all rings and set rotation angles to show correct answers when game is lost', () => {
+    it('should lock all rings and set selectedValues to show correct answers when game is lost', () => {
       const initialState = createStateWithThreeHeadlinesHeard();
 
       const newState = gameReducer(initialState, {
@@ -488,13 +433,10 @@ describe('gameReducer', () => {
       expect(newState.ringStates.year.isLocked).toBe(true);
       expect(newState.ringStates.month.isLocked).toBe(true);
 
-      // Rotation angles should be set to align correct answers at 12 o'clock
-      // Decade: '1990s' is at index 5, anglePerSegment = 360/9 = 40°, rotation = -(5 * 40) = -200°
-      expect(newState.ringStates.decade.rotationAngle).toBe(-200);
-      // Year: '1995' is at index 5, anglePerSegment = 360/10 = 36°, rotation = -(5 * 36) = -180°
-      expect(newState.ringStates.year.rotationAngle).toBe(-180);
-      // Month: 'Jul-Sep' is at index 2, anglePerSegment = 360/4 = 90°, rotation = -(2 * 90) = -180°
-      expect(newState.ringStates.month.rotationAngle).toBe(-180);
+      // Selected values should be set to correct answers
+      expect(newState.ringStates.decade.selectedValue).toBe('1990s');
+      expect(newState.ringStates.year.selectedValue).toBe('1995');
+      expect(newState.ringStates.month.selectedValue).toBe('Jul-Sep');
 
       // Uncompleted rings should turn red (decade was never guessed so color is None)
       expect(newState.ringStates.decade.color).toBe(RingColor.Red);
@@ -622,7 +564,6 @@ describe('gameReducer', () => {
       const initialState = createMockGameState({
         ringStates: {
           decade: createRingState({
-            rotationAngle: 90,
             selectedValue: '1990s',
             incorrectGuesses: ['1980s'],
           }),
@@ -637,7 +578,6 @@ describe('gameReducer', () => {
         color: 'gold',
       });
 
-      expect(newState.ringStates.decade.rotationAngle).toBe(90);
       expect(newState.ringStates.decade.selectedValue).toBe('1990s');
       expect(newState.ringStates.decade.incorrectGuesses).toEqual(['1980s']);
     });
@@ -696,7 +636,6 @@ describe('gameReducer', () => {
           decade: createRingState({
             showIncorrectFlash: true,
             incorrectGuesses: ['1980s'],
-            rotationAngle: 45,
           }),
           year: createRingState(),
           month: createRingState(),
@@ -709,7 +648,6 @@ describe('gameReducer', () => {
       });
 
       expect(newState.ringStates.decade.incorrectGuesses).toEqual(['1980s']);
-      expect(newState.ringStates.decade.rotationAngle).toBe(45);
     });
   });
 

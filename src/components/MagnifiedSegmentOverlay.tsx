@@ -1,12 +1,11 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { DIAL_DIMENSIONS } from '../config/dialDimensions';
-import { getSegmentAtTop } from '../utils/ringRotation';
 import { RingColor } from '../types/game';
 import { getRingColor } from './Ring';
 
 interface MagnifiedSegmentOverlayProps {
   segments: string[];
-  rotation: number;
+  selectedValue: string;
   radius: number;
   strokeWidth: number;
   color: RingColor;
@@ -15,7 +14,7 @@ interface MagnifiedSegmentOverlayProps {
 
 export function MagnifiedSegmentOverlay({
   segments,
-  rotation,
+  selectedValue,
   radius,
   strokeWidth,
   color,
@@ -26,9 +25,8 @@ export function MagnifiedSegmentOverlay({
   const segmentCount = segments.length;
   const anglePerSegment = 360 / segmentCount;
 
-  // Calculate which segment is currently at 12 o'clock
-  const topSegmentIndex = getSegmentAtTop(rotation, segmentCount);
-  const topSegmentText = segments[topSegmentIndex];
+  // Use selectedValue directly - it's already the value at 12 o'clock
+  const topSegmentText = selectedValue;
 
   // Magnification settings - split equally above and below
   const magnificationOffset = 10; // How much bigger the overlay is (total)

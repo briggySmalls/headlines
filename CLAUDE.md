@@ -73,38 +73,24 @@ Note: These commands assume standard Create React App or Vite setup patterns. Up
 
 ## Architecture Notes
 
-### Potential Refactoring: Ring State Redundancy
+### Ring State: Single Source of Truth
 
-**Current Implementation:**
-The ring state stores both `rotationAngle` and `selectedValue`, which creates redundancy:
-- `rotationAngle`: The visual rotation of the ring (in degrees)
-- `selectedValue`: The value currently selected (shown at 12 o'clock position)
+**Implementation:**
+Ring rotation is derived from `selectedValue` rather than stored separately. This eliminates state redundancy and synchronization issues.
 
-**The Issue:**
-These two values are interdependent but stored separately, which can lead to inconsistencies:
-- When the decade ring changes, the year ring's segments update dynamically, but `selectedValue` must be manually updated to stay in sync
-- We maintain synchronization in multiple places (`SET_RING_VALUE` action and `SUBMIT_GUESS` action)
+**Key Design Decisions:**
+- `selectedValue` is the single source of truth for ring position
+- Rotation angles are calculated dynamically using `calculateRotationFromValue()`
+- During drag operations, temporary rotation is tracked via React state and refs
+- Rotation normalization ensures smooth animations across wrap-around boundaries (e.g., 2020s → 1940s)
 
-**Refactoring Options:**
+**Benefits:**
+- No state synchronization needed between rotation and value
+- Impossible for rotation and selected value to become inconsistent
+- Year ring automatically stays in sync when decade changes (via year offset calculation)
+- Simpler reducer logic - only updates `selectedValue`, rotation is derived
 
-**Option A: Derive `rotationAngle` from `selectedValue`** (Recommended)
-- Store only `selectedValue` in state
-- Calculate `rotationAngle` based on the index of `selectedValue` in the segments array
-- **Pros**: More intuitive - user selects a value, rotation is just visual representation
-- **Pros**: Single source of truth, impossible to get out of sync
-- **Cons**: Need to calculate rotation on every render (minimal performance impact)
-
-**Option B: Derive `selectedValue` from `rotationAngle`**
-- Store only `rotationAngle` in state
-- Calculate `selectedValue` based on which segment is at 12 o'clock
-- **Pros**: Single source of truth
-- **Cons**: Less intuitive - rotation angle is lower-level than the conceptual "selected value"
-- **Cons**: Requires access to segments array to calculate value
-
-**Implementation Considerations:**
-- Either refactoring would eliminate the need for reactive updates in `SET_RING_VALUE`
-- Would simplify the reducer and remove a class of potential bugs
-- Requires updates to: reducer, components, and all tests that directly set ring state
-
-**Current Status:**
-Reactive updates are in place as a pragmatic solution. The year ring's `selectedValue` automatically updates when the decade ring changes (see `gameReducer.ts` `SET_RING_VALUE` case).
+**Performance:**
+- Rotation calculation is memoized using `useMemo` hooks
+- Minimal performance impact from deriving rotation on each render
+- `lastKnownRotationRef` prevents jarring animations when changing values

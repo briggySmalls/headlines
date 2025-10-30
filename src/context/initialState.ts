@@ -14,7 +14,6 @@ export function createInitialState(dailyGame: DailyGame): GameState {
 
     ringStates: {
       [RingType.Decade]: {
-        rotationAngle: 0,
         isLocked: false,
         color: RingColor.None,
         selectedValue: '1940s', // segment 0 at 12 o'clock
@@ -22,7 +21,6 @@ export function createInitialState(dailyGame: DailyGame): GameState {
         incorrectGuesses: [],
       },
       [RingType.Year]: {
-        rotationAngle: 0,
         isLocked: false,
         color: RingColor.None,
         selectedValue: '1940', // segment 0 at 12 o'clock
@@ -30,7 +28,6 @@ export function createInitialState(dailyGame: DailyGame): GameState {
         incorrectGuesses: [],
       },
       [RingType.Month]: {
-        rotationAngle: 0,
         isLocked: false,
         color: RingColor.None,
         selectedValue: 'Jan-Mar', // segment 0 at 12 o'clock

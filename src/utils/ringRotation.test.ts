@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { calculateRotationToAlignAnswer, getSegmentAtTop, snapToSegment } from './ringRotation';
+import { calculateRotationToAlignAnswer, calculateRotationFromValue, getSegmentAtTop, snapToSegment } from './ringRotation';
 import { RingType } from '../types/game';
 
 describe('calculateRotationToAlignAnswer', () => {
@@ -270,5 +270,91 @@ describe('snapToSegment', () => {
     // 1000° should snap to nearest 30° multiple = 990°
     const snapped = snapToSegment(1000, 12);
     expect(snapped).toBe(990);
+  });
+});
+
+describe('calculateRotationFromValue', () => {
+  describe('Decade ring', () => {
+    it('should calculate rotation for 1940s (first decade)', () => {
+      const rotation = calculateRotationFromValue(RingType.Decade, '1940s');
+      expect(rotation).toBe(-0);
+    });
+
+    it('should calculate rotation for 1990s', () => {
+      const rotation = calculateRotationFromValue(RingType.Decade, '1990s');
+      expect(rotation).toBe(-200); // Index 5, -(5 * 40)
+    });
+
+    it('should calculate rotation for 2020s (last decade)', () => {
+      const rotation = calculateRotationFromValue(RingType.Decade, '2020s');
+      expect(rotation).toBe(-320); // Index 8, -(8 * 40)
+    });
+  });
+
+  describe('Year ring', () => {
+    it('should calculate rotation for first year of decade', () => {
+      const rotation = calculateRotationFromValue(RingType.Year, '1990', '1990s');
+      expect(rotation).toBe(-0);
+    });
+
+    it('should calculate rotation for middle year of decade', () => {
+      const rotation = calculateRotationFromValue(RingType.Year, '1995', '1990s');
+      expect(rotation).toBe(-180); // Index 5, -(5 * 36)
+    });
+
+    it('should calculate rotation for last year of decade', () => {
+      const rotation = calculateRotationFromValue(RingType.Year, '1999', '1990s');
+      expect(rotation).toBe(-324); // Index 9, -(9 * 36)
+    });
+
+    it('should work for different decades', () => {
+      const rotation = calculateRotationFromValue(RingType.Year, '1985', '1980s');
+      expect(rotation).toBe(-180); // Index 5 in 1980s
+    });
+  });
+
+  describe('Month ring', () => {
+    it('should calculate rotation for Jan-Mar (first quarter)', () => {
+      const rotation = calculateRotationFromValue(RingType.Month, 'Jan-Mar');
+      expect(rotation).toBe(-0);
+    });
+
+    it('should calculate rotation for Apr-Jun (second quarter)', () => {
+      const rotation = calculateRotationFromValue(RingType.Month, 'Apr-Jun');
+      expect(rotation).toBe(-90); // Index 1, -(1 * 90)
+    });
+
+    it('should calculate rotation for Jul-Sep (third quarter)', () => {
+      const rotation = calculateRotationFromValue(RingType.Month, 'Jul-Sep');
+      expect(rotation).toBe(-180); // Index 2, -(2 * 90)
+    });
+
+    it('should calculate rotation for Oct-Dec (last quarter)', () => {
+      const rotation = calculateRotationFromValue(RingType.Month, 'Oct-Dec');
+      expect(rotation).toBe(-270); // Index 3, -(3 * 90)
+    });
+  });
+
+  describe('Round-trip consistency', () => {
+    it('should be consistent: value -> rotation -> segment index (decades)', () => {
+      const originalValue = '1990s';
+      const rotation = calculateRotationFromValue(RingType.Decade, originalValue);
+      const segmentIndex = getSegmentAtTop(rotation, 9);
+      expect(segmentIndex).toBe(5); // 1990s is at index 5
+    });
+
+    it('should be consistent: value -> rotation -> segment index (years)', () => {
+      const originalValue = '1995';
+      const rotation = calculateRotationFromValue(RingType.Year, originalValue, '1990s');
+      const segmentIndex = getSegmentAtTop(rotation, 10);
+      expect(segmentIndex).toBe(5); // 1995 is at index 5 in 1990s
+    });
+
+    it('should be consistent: value -> rotation -> segment index (months)', () => {
+      const originalValue = 'Jul-Sep';
+      const rotation = calculateRotationFromValue(RingType.Month, originalValue);
+      const segmentIndex = getSegmentAtTop(rotation, 4);
+      expect(segmentIndex).toBe(2); // Jul-Sep is at index 2
+    });
   });
 });
