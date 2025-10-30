@@ -1,5 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { DIAL_DIMENSIONS } from '../config/dialDimensions';
+import { COLORS } from '../config/colors';
 import { RingColor } from '../types/game';
 import { getRingColor } from './Ring';
 
@@ -77,7 +78,7 @@ export function MagnifiedSegmentOverlay({
       <path
         d={arcPath}
         fill={segmentColor}
-        stroke="#1e293b"
+        stroke={COLORS.background.dark}
         strokeWidth="2"
       />
 

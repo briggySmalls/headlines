@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import { DIAL_DIMENSIONS } from '../config/dialDimensions';
+import { COLORS } from '../config/colors';
 
 interface PlayButtonProps {
   isPlaying: boolean;
@@ -26,7 +27,7 @@ export function PlayButton({
         cx={centerX}
         cy={centerY}
         r={radius}
-        fill={isPlaying ? "#94a3b8" : "#1e293b"}
+        fill={isPlaying ? COLORS.background.disabled : COLORS.background.dark}
         style={{ cursor: disabled || isPlaying ? 'default' : 'pointer' }}
         onClick={disabled || isPlaying ? undefined : onClick}
       />
@@ -44,7 +45,7 @@ export function PlayButton({
         // Play icon (triangle) - light color, scaled to fit smaller circle
         <motion.path
           d={`M ${centerX - 16} ${centerY - 23} L ${centerX - 16} ${centerY + 23} L ${centerX + 23} ${centerY} Z`}
-          fill="#f1f5f9"
+          fill={COLORS.text.light}
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.2 }}
@@ -58,7 +59,7 @@ export function PlayButton({
         cy={centerY}
         r={radius}
         fill="none"
-        stroke="#1e293b"
+        stroke={COLORS.background.dark}
         strokeWidth="3"
         style={{ pointerEvents: 'none' }}
       />
@@ -99,7 +100,7 @@ function ClockWipe({
   return (
     <path
       d={createClockWipePath(centerX, centerY, radius, angle)}
-      fill="#64748b"
+      fill={COLORS.text.disabled}
       style={{ pointerEvents: 'none' }}
     />
   );
