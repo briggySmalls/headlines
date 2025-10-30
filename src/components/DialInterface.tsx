@@ -112,6 +112,58 @@ export function DialInterface({ onAudioStateChange }: DialInterfaceProps = {}) {
     }
   }, [isGameOver, singlePlayer]);
 
+  // Keyboard controls - left/right arrow keys to rotate by one segment
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const currentRing = state.currentRing;
+
+      // Don't handle if ring is locked
+      if (state.ringStates[currentRing].isLocked) return;
+
+      // Only handle left/right arrows
+      if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+
+      // Prevent default scrolling behavior
+      e.preventDefault();
+
+      const segments =
+        currentRing === RingType.Decade
+          ? ringConfig.decades
+          : currentRing === RingType.Year
+            ? yearsForDecade
+            : ringConfig.months;
+
+      const segmentCount = segments.length;
+      const currentValue = state.ringStates[currentRing].selectedValue;
+      const currentIndex = segments.indexOf(currentValue);
+
+      if (currentIndex === -1) return;
+
+      // Calculate new index based on arrow direction
+      let newIndex: number;
+      if (e.key === 'ArrowLeft') {
+        // Move counter-clockwise (previous segment)
+        newIndex = (currentIndex - 1 + segmentCount) % segmentCount;
+      } else {
+        // Move clockwise (next segment)
+        newIndex = (currentIndex + 1) % segmentCount;
+      }
+
+      const newValue = segments[newIndex];
+
+      if (newValue) {
+        dispatch({
+          type: 'SET_RING_VALUE',
+          ringType: currentRing,
+          value: newValue,
+        });
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [state.currentRing, state.ringStates, yearsForDecade, dispatch]);
+
   // Notify parent of audio state changes
   useEffect(() => {
     if (onAudioStateChange) {
