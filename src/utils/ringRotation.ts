@@ -58,3 +58,21 @@ export function snapToSegment(rotation: number, segmentCount: number): number {
   const nearestSegment = Math.round(rotation / anglePerSegment);
   return nearestSegment * anglePerSegment;
 }
+
+/**
+ * Calculates the rotation angle needed to display a selected value at 12 o'clock
+ * This is the primary function for deriving rotation from selectedValue (single source of truth)
+ * @param ringType - The type of ring (decade, year, or month)
+ * @param selectedValue - The currently selected value to display at 12 o'clock
+ * @param currentDecade - The current decade (needed for year ring to get correct segments)
+ * @returns Rotation angle in degrees (negative for clockwise rotation)
+ */
+export function calculateRotationFromValue(
+  ringType: RingType,
+  selectedValue: string,
+  currentDecade?: string
+): number {
+  // For year ring, we need the decade to determine segments
+  const decadeParam = ringType === RingType.Year && currentDecade ? currentDecade : '';
+  return calculateRotationToAlignAnswer(ringType, selectedValue, decadeParam);
+}

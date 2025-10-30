@@ -24,7 +24,6 @@ export const RingColor = {
 export type RingColor = typeof RingColor[keyof typeof RingColor];
 
 export interface RingState {
-  rotationAngle: number; // degrees from 0
   isLocked: boolean;
   color: RingColor;
   selectedValue: string; // current value at 12 o'clock

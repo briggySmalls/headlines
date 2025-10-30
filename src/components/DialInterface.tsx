@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useMemo } from 'react';
 import { Ring } from './Ring';
 import { PlayButton } from './PlayButton';
 import { LivesIndicator } from './LivesIndicator';
@@ -10,14 +10,16 @@ import { ringConfig } from '../data/ringConfig';
 import { motion } from 'framer-motion';
 import { RingType, GameStatus } from '../types/game';
 import { DIAL_DIMENSIONS, getRingRadius } from '../config/dialDimensions';
-import { getSegmentAtTop, snapToSegment } from '../utils/ringRotation';
+import { getSegmentAtTop, snapToSegment, calculateRotationFromValue } from '../utils/ringRotation';
 
 export function DialInterface() {
   const { state, dispatch } = useGame();
   const svgRef = useRef<SVGSVGElement>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [tempRotation, setTempRotation] = useState<number | null>(null);
   const startAngleRef = useRef<number>(0);
   const currentRotationRef = useRef<number>(0);
+  const lastKnownRotationRef = useRef<{ [key in RingType]?: number }>({});
 
   // Get current values for each ring
   const decadeValue = state.ringStates.decade.selectedValue;
@@ -26,6 +28,55 @@ export function DialInterface() {
     ? state.correctAnswer.decade
     : decadeValue;
   const yearsForDecade = ringConfig.getYearsForDecade(decadeToUse);
+
+  // Helper to normalize rotation to be close to a reference rotation
+  const normalizeRotationToReference = (targetRotation: number, referenceRotation: number): number => {
+    // Find the equivalent rotation closest to the reference
+    // e.g., if target is -320 and reference is 40, return 40 instead
+    const diff = targetRotation - referenceRotation;
+    const normalized = targetRotation - Math.round(diff / 360) * 360;
+    return normalized;
+  };
+
+  // Derive rotation angles from selectedValues (single source of truth)
+  const decadeRotation = useMemo(() => {
+    const rotation = calculateRotationFromValue(RingType.Decade, state.ringStates.decade.selectedValue);
+    // If we have tempRotation and we're on the decade ring, normalize to it
+    // Otherwise, use lastKnownRotation if available
+    const reference = tempRotation !== null && state.currentRing === RingType.Decade
+      ? tempRotation
+      : lastKnownRotationRef.current[RingType.Decade];
+    const normalized = reference !== undefined
+      ? normalizeRotationToReference(rotation, reference)
+      : rotation;
+    // Store this rotation as the last known position
+    lastKnownRotationRef.current[RingType.Decade] = normalized;
+    return normalized;
+  }, [state.ringStates.decade.selectedValue, tempRotation, state.currentRing]);
+
+  const yearRotation = useMemo(() => {
+    const rotation = calculateRotationFromValue(RingType.Year, state.ringStates.year.selectedValue, decadeToUse);
+    const reference = tempRotation !== null && state.currentRing === RingType.Year
+      ? tempRotation
+      : lastKnownRotationRef.current[RingType.Year];
+    const normalized = reference !== undefined
+      ? normalizeRotationToReference(rotation, reference)
+      : rotation;
+    lastKnownRotationRef.current[RingType.Year] = normalized;
+    return normalized;
+  }, [state.ringStates.year.selectedValue, decadeToUse, tempRotation, state.currentRing]);
+
+  const monthRotation = useMemo(() => {
+    const rotation = calculateRotationFromValue(RingType.Month, state.ringStates.month.selectedValue);
+    const reference = tempRotation !== null && state.currentRing === RingType.Month
+      ? tempRotation
+      : lastKnownRotationRef.current[RingType.Month];
+    const normalized = reference !== undefined
+      ? normalizeRotationToReference(rotation, reference)
+      : rotation;
+    lastKnownRotationRef.current[RingType.Month] = normalized;
+    return normalized;
+  }, [state.ringStates.month.selectedValue, tempRotation, state.currentRing]);
 
   // Audio player for current headline during game
   const currentAudioSrc =
@@ -56,14 +107,19 @@ export function DialInterface() {
 
       const center = getCenterPoint();
       const angle = Math.atan2(e.clientY - center.y, e.clientX - center.x);
-      const currentRotation = state.ringStates[currentRing].rotationAngle;
+
+      // Get current rotation from the derived values
+      const currentRotation =
+        currentRing === RingType.Decade ? decadeRotation :
+        currentRing === RingType.Year ? yearRotation :
+        monthRotation;
 
       startAngleRef.current = (angle * 180) / Math.PI - currentRotation;
       currentRotationRef.current = currentRotation;
       setIsDragging(true);
       e.stopPropagation();
     },
-    [state, getCenterPoint]
+    [state, getCenterPoint, decadeRotation, yearRotation, monthRotation]
   );
 
   const handlePointerMove = useCallback(
@@ -95,20 +151,17 @@ export function DialInterface() {
       // Update the reference for next iteration
       currentRotationRef.current = newRotation;
 
-      dispatch({
-        type: 'ROTATE_RING',
-        ringType: currentRing,
-        angle: newRotation,
-      });
+      // Update temporary rotation for smooth dragging
+      setTempRotation(newRotation);
     },
-    [isDragging, state, getCenterPoint, dispatch]
+    [isDragging, state, getCenterPoint]
   );
 
   const handlePointerUp = useCallback(() => {
     if (!isDragging) return;
 
     const currentRing = state.currentRing;
-    const currentRotation = state.ringStates[currentRing].rotationAngle;
+    const currentRotation = tempRotation ?? currentRotationRef.current;
     const segments =
       currentRing === RingType.Decade
         ? ringConfig.decades
@@ -119,13 +172,8 @@ export function DialInterface() {
 
     // Snap to nearest segment
     const snappedRotation = snapToSegment(currentRotation, segmentCount);
-    dispatch({
-      type: 'ROTATE_RING',
-      ringType: currentRing,
-      angle: snappedRotation,
-    });
 
-    // Update selected value
+    // Calculate selected value from snapped rotation
     const segmentIndex = getSegmentAtTop(snappedRotation, segmentCount);
     const selectedValue = segments[segmentIndex];
 
@@ -138,9 +186,11 @@ export function DialInterface() {
     }
 
     setIsDragging(false);
+    setTempRotation(null);
   }, [
     isDragging,
-    state,
+    tempRotation,
+    state.currentRing,
     yearsForDecade,
     dispatch,
   ]);
@@ -223,7 +273,11 @@ export function DialInterface() {
         >
         {/* Outer Ring - Decade */}
         <motion.g
-          animate={{ rotate: state.ringStates.decade.rotationAngle }}
+          animate={{
+            rotate: isDragging && state.currentRing === RingType.Decade && tempRotation !== null
+              ? tempRotation
+              : decadeRotation
+          }}
           transition={{ type: 'spring', stiffness: 300, damping: 30 }}
         >
           <Ring
@@ -244,7 +298,11 @@ export function DialInterface() {
 
         {/* Middle Ring - Year */}
         <motion.g
-          animate={{ rotate: state.ringStates.year.rotationAngle }}
+          animate={{
+            rotate: isDragging && state.currentRing === RingType.Year && tempRotation !== null
+              ? tempRotation
+              : yearRotation
+          }}
           transition={{ type: 'spring', stiffness: 300, damping: 30 }}
         >
           <Ring
@@ -265,7 +323,11 @@ export function DialInterface() {
 
         {/* Inner Ring - Month */}
         <motion.g
-          animate={{ rotate: state.ringStates.month.rotationAngle }}
+          animate={{
+            rotate: isDragging && state.currentRing === RingType.Month && tempRotation !== null
+              ? tempRotation
+              : monthRotation
+          }}
           transition={{ type: 'spring', stiffness: 300, damping: 30 }}
         >
           <Ring
@@ -290,7 +352,7 @@ export function DialInterface() {
           <>
             <MagnifiedSegmentOverlay
               segments={ringConfig.decades}
-              rotation={state.ringStates.decade.rotationAngle}
+              selectedValue={state.ringStates.decade.selectedValue}
               radius={getRingRadius(RingType.Decade)}
               strokeWidth={DIAL_DIMENSIONS.ringStrokeWidth}
               color={state.ringStates.decade.color}
@@ -298,7 +360,7 @@ export function DialInterface() {
             />
             <MagnifiedSegmentOverlay
               segments={yearsForDecade}
-              rotation={state.ringStates.year.rotationAngle}
+              selectedValue={state.ringStates.year.selectedValue}
               radius={getRingRadius(RingType.Year)}
               strokeWidth={DIAL_DIMENSIONS.ringStrokeWidth}
               color={state.ringStates.year.color}
@@ -306,7 +368,7 @@ export function DialInterface() {
             />
             <MagnifiedSegmentOverlay
               segments={ringConfig.months}
-              rotation={state.ringStates.month.rotationAngle}
+              selectedValue={state.ringStates.month.selectedValue}
               radius={getRingRadius(RingType.Month)}
               strokeWidth={DIAL_DIMENSIONS.ringStrokeWidth}
               color={state.ringStates.month.color}
@@ -327,7 +389,7 @@ export function DialInterface() {
             return (
               <MagnifiedSegmentOverlay
                 segments={segments}
-                rotation={state.ringStates[currentRing].rotationAngle}
+                selectedValue={state.ringStates[currentRing].selectedValue}
                 radius={getRingRadius(currentRing)}
                 strokeWidth={DIAL_DIMENSIONS.ringStrokeWidth}
                 color={state.ringStates[currentRing].color}

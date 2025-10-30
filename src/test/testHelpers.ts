@@ -6,7 +6,6 @@ import { GameState, RingState, RingColor, RingType, GameStatus } from '../types/
  */
 export function createRingState(overrides?: Partial<RingState>): RingState {
   return {
-    rotationAngle: 0,
     isLocked: false,
     color: RingColor.None,
     selectedValue: '',
