@@ -21,12 +21,12 @@ export function PlayButton({
 
   return (
     <g>
-      {/* Button background circle - same as answer display */}
+      {/* Button background circle */}
       <circle
         cx={centerX}
         cy={centerY}
         r={radius}
-        fill="#1e293b"
+        fill={isPlaying ? "#94a3b8" : "#1e293b"}
         style={{ cursor: disabled || isPlaying ? 'default' : 'pointer' }}
         onClick={disabled || isPlaying ? undefined : onClick}
       />
@@ -99,8 +99,7 @@ function ClockWipe({
   return (
     <path
       d={createClockWipePath(centerX, centerY, radius, angle)}
-      fill="#f1f5f9"
-      fillOpacity={0.5}
+      fill="#64748b"
       style={{ pointerEvents: 'none' }}
     />
   );
