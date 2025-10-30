@@ -466,10 +466,22 @@ export function DialInterface({ onAudioStateChange }: DialInterfaceProps = {}) {
                   ? yearsForDecade
                   : ringConfig.months;
 
+            // During dragging, calculate which segment is currently at 12 o'clock
+            let displayValue = state.ringStates[currentRing].selectedValue;
+            if (isDragging && tempRotation !== null) {
+              // Snap to nearest segment first to ensure accurate segment detection
+              const snappedRotation = snapToSegment(tempRotation, segments.length);
+              const segmentIndex = getSegmentAtTop(snappedRotation, segments.length);
+              const segmentValue = segments[segmentIndex];
+              if (segmentValue) {
+                displayValue = segmentValue;
+              }
+            }
+
             return (
               <MagnifiedSegmentOverlay
                 segments={segments}
-                selectedValue={state.ringStates[currentRing].selectedValue}
+                selectedValue={displayValue}
                 radius={getRingRadius(currentRing)}
                 strokeWidth={DIAL_DIMENSIONS.ringStrokeWidth}
                 color={state.ringStates[currentRing].color}
