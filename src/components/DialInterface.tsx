@@ -378,11 +378,6 @@ export function DialInterface() {
       </svg>
       </div>
 
-      {/* Lives Indicator - shows mistakes made */}
-      {state.gameStatus !== GameStatus.Won && state.gameStatus !== GameStatus.Lost && (
-        <LivesIndicator mistakesMade={state.currentHeadlineIndex} />
-      )}
-
       {/* Submit Button - outside SVG, below the dial */}
       {state.gameStatus !== GameStatus.Won && state.gameStatus !== GameStatus.Lost && (
         <button
@@ -419,6 +414,11 @@ export function DialInterface() {
         >
           Confirm
         </button>
+      )}
+
+      {/* Lives Indicator - shows mistakes made, now below submit button */}
+      {state.gameStatus !== GameStatus.Won && state.gameStatus !== GameStatus.Lost && (
+        <LivesIndicator mistakesMade={state.currentHeadlineIndex} />
       )}
     </div>
   );
