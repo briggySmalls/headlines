@@ -27,8 +27,14 @@
   font-display: swap;
 }
 
-body {
+/* Full-height layout foundation */
+html, body, #root {
+  height: 100%;
   margin: 0;
+  padding: 0;
+}
+
+body {
   font-family:
     'BBC Reith Sans',
     -apple-system,
@@ -44,4 +50,5 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow: hidden;
 }

@@ -39,22 +39,26 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-600 to-purple-700 flex flex-col items-center p-4">
+    <div className="h-screen bg-gradient-to-br from-indigo-600 to-purple-700 flex flex-col items-center p-4">
       {/* Header with title and help button */}
-      <div className="flex items-center gap-4 mt-8 mb-8">
-        <h1 className="font-bold text-white select-none uppercase" style={{ fontSize: '3rem' }}>
+      <div className="flex-shrink-0 flex items-center gap-4" style={{ marginTop: 'clamp(0.5rem, 2vh, 1.5rem)', marginBottom: 'clamp(0.5rem, 2vh, 1.5rem)' }}>
+        <h1 className="font-bold text-white select-none uppercase" style={{ fontSize: '3rem', margin: 0 }}>
           Headlines
         </h1>
         <div style={{ marginLeft: '1rem' }}>
           <HowToPlayButton onClick={() => setIsModalOpen(true)} />
         </div>
       </div>
-      <NewsTicker
-        text={currentTranscript}
-        isPlaying={audioState.isPlaying}
-        duration={tickerDuration}
-      />
-      <div style={{ marginTop: '2rem' }}>
+
+      <div className="flex-shrink-0 w-full">
+        <NewsTicker
+          text={currentTranscript}
+          isPlaying={audioState.isPlaying}
+          duration={tickerDuration}
+        />
+      </div>
+
+      <div className="flex-1 w-full flex items-center justify-center overflow-y-auto" style={{ paddingTop: 'clamp(0.5rem, 2vh, 1.5rem)' }}>
         <DialInterface onAudioStateChange={handleAudioStateChange} />
       </div>
 
