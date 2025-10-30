@@ -100,6 +100,18 @@ export function DialInterface({ onAudioStateChange }: DialInterfaceProps = {}) {
     ? multiPlayer.trackDurations[currentTrackIndex]
     : undefined;
 
+  // Stop audio when game ends
+  const prevGameOverRef = useRef(false);
+  useEffect(() => {
+    // Only trigger when transitioning from not game over to game over
+    if (isGameOver && !prevGameOverRef.current) {
+      singlePlayer.pause(); // Pause the single player (which is what's playing during the game)
+      prevGameOverRef.current = true;
+    } else if (!isGameOver) {
+      prevGameOverRef.current = false;
+    }
+  }, [isGameOver, singlePlayer]);
+
   // Notify parent of audio state changes
   useEffect(() => {
     if (onAudioStateChange) {
