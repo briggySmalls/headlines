@@ -334,7 +334,7 @@ export function DialInterface({ onAudioStateChange }: DialInterfaceProps = {}) {
   }, [isPlaying, play, state.headlinesHeard, state.currentHeadlineIndex, dispatch, isGameOver, multiPlayer]);
 
   return (
-    <div className="relative w-full max-w-[500px] touch-none select-none flex flex-col items-center" style={{ gap: '2rem', maxHeight: '70vh' }}>
+    <div className="relative w-full max-w-[500px] touch-none select-none flex flex-col items-center" style={{ gap: '1.5rem', maxHeight: '65vh' }}>
       <div className="w-full aspect-square">
         <svg
           ref={svgRef}
@@ -549,8 +549,8 @@ export function DialInterface({ onAudioStateChange }: DialInterfaceProps = {}) {
               ? COLORS.text.disabled
               : COLORS.text.light,
             cursor: state.headlinesHeard === state.currentHeadlineIndex ? 'not-allowed' : 'pointer',
-            fontSize: '2rem',
-            padding: '0.75rem 3rem', // Thinner than before
+            fontSize: '1.5rem',
+            padding: '0.5rem 2rem',
             boxShadow: state.headlinesHeard === state.currentHeadlineIndex
               ? 'none'
               : '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
